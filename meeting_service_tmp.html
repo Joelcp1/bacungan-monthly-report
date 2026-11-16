@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="Field Ministry Schedule — live, auto-syncing view of the ministry assignment sheet.">
+    <title>Field Ministry Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    screens: {
+                        xs: '420px',
+                    },
+                    keyframes: {
+                        pulseSlow: { '0%,100%': { opacity: 1 }, '50%': { opacity: .45 } },
+                        toastIn: { from: { opacity: 0, transform: 'translateY(12px) scale(.98)' }, to: { opacity: 1, transform: 'none' } },
+                        fadeUp: { from: { opacity: 0, transform: 'translateY(6px)' }, to: { opacity: 1, transform: 'none' } },
+                    },
+                    animation: {
+                        'pulse-slow': 'pulseSlow 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'toast-in': 'toastIn .25s cubic-bezier(.16,1,.3,1)',
+                        'fade-up': 'fadeUp .3s cubic-bezier(.16,1,.3,1) both',
+                    },
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { color-scheme: light dark; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+        .view-hidden { display: none !important; }
+        [hidden] { display: none !important; }
+
+        /* Fluid auto-fit grids — no fixed breakpoint jumps */
+        .grid-auto { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr)); }
+        .grid-auto-lg { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+
+        /* Thin, theme-aware scrollbars */
+        .scroll-slim { scrollbar-width: thin; scrollbar-color: rgb(156 163 175 / .55) transparent; }
+        .scroll-slim::-webkit-scrollbar { width: 8px; height: 8px; }
+        .scroll-slim::-webkit-scrollbar-track { background: transparent; }
+        .scroll-slim::-webkit-scrollbar-thumb { background: rgb(156 163 175 / .5); border-radius: 9999px; }
+        .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .hscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* Focus visibility for keyboard users only */
+        :focus-visible { outline: 2px solid #0d9488; outline-offset: 2px; border-radius: .5rem; }
+        .dark :focus-visible, :root.dark :focus-visible { outline-color: #2dd4bf; }
+
+        .line-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+        }
+
+        /* ---------- TV MODE ---------- */
+        .tv-mode { font-size: 18px; }
+        .tv-mode #app-body { padding: 1rem; }
+        .tv-mode #main-container { max-width: none; }
+        .tv-mode .tv-scale { font-size: 1.28em; }
+        .tv-mode .tv-h1 { font-size: 2.6em; line-height: 1.05; }
+        .tv-mode .tv-h2 { font-size: 1.5em; line-height: 1.15; }
+        .tv-mode .tv-sm  { font-size: 1.06em; }
+        .tv-mode .tv-xs  { font-size: .92em; }
+        .tv-mode .tv-card { padding: 1.5rem; border-width: 2px; }
+        .tv-mode .tv-grid { display: grid; gap: 1.75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+        .tv-mode .tv-daybar { padding: .7em 1.1em; }
+        .tv-clock { font-variant-numeric: tabular-nums; }
+        .tv-scroll { height: calc(100dvh - 13rem); overflow-y: auto; padding-bottom: 1rem; }
+        @media (min-width: 1280px) { .tv-mode .tv-scroll { height: calc(100dvh - 15rem); } }
+        @media (min-width: 1920px) { .tv-mode { font-size: 21px; } .tv-mode .tv-scroll { height: calc(100dvh - 16rem); } }
+
+        .print-only { display: none; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block; }
+            body { background: #fff !important; }
+        }
+    </style>
+
+    <script>
+        // Set theme before first paint to avoid a flash of the wrong theme.
+        (function () {
+            var pref = null;
+            try { pref = localStorage.getItem('fms-theme'); } catch (e) { }
+            if (pref === 'dark' || (!pref && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+</head>
+
+<body class="min-h-screen bg-[#f3f4f6] dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 relative antialiased"
+      style="padding-bottom: env(safe-area-inset-bottom)" id="app-body">
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-[min(24rem,calc(100vw-2rem))] pointer-events-none no-print"
+         role="status" aria-live="polite" aria-atomic="false"></div>
+
+    <a href="#schedule-region" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-3 focus:left-3 focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white no-print">
+        Skip to schedule
+    </a>
+
+    <div class="mx-auto transition-all duration-300 w-full max-w-6xl px-4 md:px-6" id="main-container">
+
+        <!-- ===================== HEADER ===================== -->
+        <header id="main-header"
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 mb-5 sm:mb-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+
+                <!-- Title + status -->
+                <div class="min-w-0 flex-1">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight transition-all duration-300">
+                        Field Ministry Schedule
+                    </h1>
+
+                    <div class="flex items-center justify-start gap-x-2 gap-y-1.5 mt-2.5 flex-wrap">
+                        <span id="sync-status-badge"
+                              class="text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300 whitespace-nowrap">
+                            Connecting&hellip;
+                        </span>
+                        <span id="last-synced-badge" class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 tabular-nums"></span>
+                        <span class="flex items-center gap-1.5 no-print">
+                            <button id="sync-now-btn" type="button"
+                                    class="text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white shadow-sm transition-colors inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-wait">
+                                <svg id="sync-icon" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span id="sync-btn-label">Sync Now</span>
+                            </button>
+                            <button id="retry-btn" type="button" hidden
+                                    class="text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-sm transition-colors">
+                                Retry
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 no-print">
+
+                    <!-- View tabs -->
+                    <div id="view-tabs" role="tablist" aria-label="Schedule view"
+                         class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300 hscroll no-scrollbar">
+                        <button type="button" role="tab" id="btn-view-card" data-view="card"
+                                aria-selected="true" aria-controls="schedule-container-card"
+                                class="view-btn shrink-0 inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-colors bg-white dark:bg-gray-700 shadow-sm text-brand-700 dark:text-brand-300">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            <span>Card</span>
+                        </button>
+                        <button type="button" role="tab" id="btn-view-list" data-view="list"
+                                aria-selected="false" aria-controls="schedule-container-list"
+                                class="view-btn shrink-0 inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                            <span>List</span>
+                        </button>
+                        <button type="button" role="tab" id="btn-view-tv" data-view="tv"
+                                aria-selected="false" aria-controls="schedule-container-tv"
+                                class="view-btn shrink-0 inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>TV</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 justify-end">
+                        <button id="fullscreen-btn" type="button" aria-label="Toggle fullscreen" title="Fullscreen"
+                                class="hidden sm:inline-flex items-center justify-center p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path></svg>
+                        </button>
+
+                        <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+                                class="inline-flex items-center justify-center p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors duration-300 shadow-sm">
+                            <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                            <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Month badge -->
+            <div id="month-header"
+                 class="mt-5 lg:mt-0 sm:absolute sm:right-6 sm:top-6 lg:static lg:ml-6 lg:mt-0 bg-brand-900 dark:bg-brand-800 text-white px-5 py-2.5 rounded-xl shadow-md flex flex-row lg:flex-col items-center justify-center gap-x-2 lg:gap-0 lg:min-w-[9.5rem] transition-transform duration-300 self-start">
+                <span class="text-[10px] lg:text-xs uppercase tracking-wider font-semibold text-brand-100 opacity-80">Month</span>
+                <span id="display-month" class="text-lg lg:text-2xl font-bold leading-tight">&mdash;</span>
+                <span id="display-year" class="text-xs lg:text-sm font-medium text-brand-100 tabular-nums"></span>
+            </div>
+        </header>
+
+        <!-- ===================== SEARCH & FILTERS ===================== -->
+        <section id="search-filter-container" aria-label="Search and filters"
+                 class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-5 sm:mb-6 flex flex-col lg:flex-row gap-3 lg:items-center justify-between transition-colors duration-300 no-print">
+
+            <div class="relative w-full lg:max-w-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <label for="search-input" class="sr-only">Search schedule</label>
+                <input type="search" id="search-input" placeholder="Search brother, date, remarks&hellip;"
+                       class="w-full pl-9 pr-8 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors">
+                <button id="clear-search-btn" type="button" aria-label="Clear search" hidden
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                <label for="activity-filter" class="sr-only">Filter by activity</label>
+                <select id="activity-filter"
+                        class="flex-1 sm:flex-none min-w-[8.5rem] px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+                    <option value="ALL">All activities</option>
+                </select>
+
+                <label for="category-filter" class="sr-only">Filter by ministry type</label>
+                <select id="category-filter"
+                        class="flex-1 sm:flex-none min-w-[7.5rem] px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+                    <option value="ALL">All types</option>
+                </select>
+
+                <label for="assignee-filter" class="sr-only">Filter by brother</label>
+                <select id="assignee-filter"
+                        class="flex-1 sm:flex-none min-w-[8.5rem] px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+                    <option value="ALL">All brothers</option>
+                </select>
+
+                <button id="today-toggle" type="button" aria-pressed="false"
+                        class="px-3 py-2 text-xs font-bold rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors whitespace-nowrap">
+                    Today
+                </button>
+
+                <span id="result-count" role="status" aria-live="polite" aria-atomic="true" class="text-xs font-semibold text-gray-500 dark:text-gray-400 tabular-nums whitespace-nowrap ml-auto lg:ml-1"></span>
+            </div>
+        </section>
+
+        <!-- ===================== ERROR ===================== -->
+        <div id="error-message" hidden role="alert"
+             class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg shadow-sm">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 pt-0.5">
+                    <svg class="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-0 min-w-0">
+                    <p class="text-sm text-red-700 dark:text-red-300 font-medium" id="error-text">Failed to load schedule.</p>
+                    <p class="text-xs text-red-600/80 dark:text-red-400/80 mt-1" id="error-hint">
+                        Make sure the sheet is shared as &ldquo;Anyone with the link can view&rdquo;.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== LOADING ===================== -->
+        <div id="loading-state" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5" aria-busy="true" aria-label="Loading schedule">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-44 animate-pulse-slow">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                <div class="h-7 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-44 animate-pulse-slow">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                <div class="h-7 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-44 animate-pulse-slow sm:block hidden xl:block">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                <div class="h-7 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+            </div>
+        </div>
+
+        <!-- ===================== SCHEDULE REGION ===================== -->
+        <!-- FIX (W5/W6): aria-live moved off the schedule region (it is fully
+             re-rendered on every filter keystroke, which made a screen reader
+             re-announce the whole schedule), and <main> is no longer itself a
+             tabpanel — nesting three tabpanels inside a fourth is invalid ARIA.
+             The small result counter is the polite live region instead. -->
+        <main id="schedule-region" tabindex="-1">
+            <div id="schedule-container-card" role="tabpanel" aria-label="Card view" tabindex="0" hidden class="flex flex-col gap-7"></div>
+            <div id="schedule-container-list" role="tabpanel" aria-label="List view" tabindex="0" hidden class="flex flex-col gap-2.5"></div>
+            <div id="schedule-container-tv"   role="tabpanel" aria-label="TV view"   tabindex="0" hidden class="tv-mode">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                    <div class="min-w-0">
+                        <h2 id="tv-title" class="tv-h1 font-extrabold text-white tracking-tight">Field Ministry Schedule</h2>
+                        <p id="tv-subtitle" class="tv-h2 text-gray-400 font-semibold mt-1">&mdash;</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <div id="tv-clock" class="tv-clock text-3xl sm:text-4xl font-extrabold text-white leading-none">&mdash;</div>
+                        <div id="tv-today" class="tv-sm text-gray-400 font-medium mt-1">&mdash;</div>
+                    </div>
+                </div>
+                <div id="tv-grid" class="tv-grid tv-scroll scroll-slim pr-1"></div>
+            </div>
+
+            <div id="load-more-wrap" hidden class="mt-6 flex justify-center no-print">
+                <button id="load-more-btn" type="button"
+                        class="px-5 py-2.5 text-sm font-bold rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm inline-flex items-center gap-2">
+                    <span id="load-more-label">Show more</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+        </main>
+
+        <footer class="mt-10 text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400 pb-6 transition-colors duration-300 print-only">
+            <p>Field Ministry Schedule &middot; synced live from Google Sheets</p>
+        </footer>
+    </div>
+
+    <script>
+    'use strict';
+
+    /* =======================================================================
+       1. CONFIG
+       ===================================================================== */
+    const CONFIG = {
+        SHEET_ID:  '1mYrnzfWeMhmgRjoRFqmMF01vuRpDhW_EzRy1jAk3Gno',
+        GID:       '1928713841',
+        REFRESH_MS: 5 * 60 * 1000,
+        TIMEOUT_MS: 20000,
+        PAGE_SIZE:  24,
+        STORAGE:   { view: 'fms-view', theme: 'fms-theme' }
+    };
+
+    /* =======================================================================
+       2. UTILITIES
+       ===================================================================== */
+    const $  = (sel, root) => (root || document).querySelector(sel);
+    const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+    const el = {
+        body:        $('#app-body'),
+        main:        $('#main-container'),
+        header:      $('#main-header'),
+        monthHeader: $('#month-header'),
+        month:       $('#display-month'),
+        year:        $('#display-year'),
+        loading:     $('#loading-state'),
+        error:       $('#error-message'),
+        errorText:   $('#error-text'),
+        errorHint:   $('#error-hint'),
+        retryBtn:    $('#retry-btn'),
+        syncBadge:   $('#sync-status-badge'),
+        syncBtn:     $('#sync-now-btn'),
+        syncIcon:    $('#sync-icon'),
+        syncBtnLabel:$('#sync-btn-label'),
+        syncedBadge: $('#last-synced-badge'),
+        themeBtn:    $('#theme-toggle'),
+        iconDark:    $('#theme-toggle-dark-icon'),
+        iconLight:   $('#theme-toggle-light-icon'),
+        fullscreenBtn: $('#fullscreen-btn'),
+        searchInput: $('#search-input'),
+        clearSearch: $('#clear-search-btn'),
+        activitySel: $('#activity-filter'),
+        categorySel: $('#category-filter'),
+        assigneeSel: $('#assignee-filter'),
+        todayToggle: $('#today-toggle'),
+        resultCount: $('#result-count'),
+        loadMoreWrap: $('#load-more-wrap'),
+        loadMoreBtn: $('#load-more-btn'),
+        loadMoreLabel: $('#load-more-label'),
+        region:      $('#schedule-region'),
+        toastHost:   $('#toast-container'),
+        tvGrid:      $('#tv-grid'),
+        tvTitle:     $('#tv-title'),
+        tvSubtitle:  $('#tv-subtitle'),
+        tvClock:     $('#tv-clock'),
+        tvToday:     $('#tv-today')
+    };
+
+    const containers = {
+        card: $('#schedule-container-card'),
+        list: $('#schedule-container-list'),
+        tv:   $('#schedule-container-tv')
+    };
+
+    /** HTML-escape any value coming from the sheet. */
+    function esc(value) {
+        if (value === null || value === undefined) return '';
+        return String(value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function debounce(fn, wait) {
+        let t;
+        return function () {
+            const args = arguments, ctx = this;
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(ctx, args), wait);
+        };
+    }
+
+    function store(key, value) {
+        try { value === null ? localStorage.removeItem(key) : localStorage.setItem(key, value); }
+        catch (e) { /* private mode */ }
+    }
+    function readStore(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+    /* --- Toasts ---------------------------------------------------------- */
+    const TOAST_STYLES = {
+        success: 'bg-emerald-50 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-100 border-emerald-200 dark:border-emerald-700',
+        error:   'bg-red-50 dark:bg-red-900/60 text-red-800 dark:text-red-100 border-red-200 dark:border-red-700',
+        info:    'bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-600',
+        warn:    'bg-amber-50 dark:bg-amber-900/60 text-amber-800 dark:text-amber-100 border-amber-200 dark:border-amber-700'
+    };
+    const TOAST_ICONS = {
+        success: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+        error:   'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        info:    'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        warn:    'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+    };
+
+    function showToast(message, type) {
+        type = type || 'info';
+        const node = document.createElement('div');
+        node.className = 'pointer-events-auto animate-toast-in rounded-xl shadow-lg border px-4 py-3 text-sm font-medium flex items-start gap-2.5 ' + TOAST_STYLES[type];
+        node.innerHTML =
+            '<svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' + TOAST_ICONS[type] + '"></path></svg>';
+        const label = document.createElement('span');
+        label.className = 'flex-1';
+        label.textContent = message;
+        node.appendChild(label);
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.setAttribute('aria-label', 'Dismiss');
+        close.className = 'text-current opacity-50 hover:opacity-100 transition-opacity';
+        close.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+        close.addEventListener('click', () => dismiss());
+        node.appendChild(close);
+
+        el.toastHost.appendChild(node);
+
+        let timer = setTimeout(dismiss, 4000);
+        function dismiss() {
+            clearTimeout(timer);
+            node.style.transition = 'opacity .2s, transform .2s';
+            node.style.opacity = '0';
+            node.style.transform = 'translateY(8px)';
+            setTimeout(() => node.remove(), 220);
+        }
+        return dismiss;
+    }
+
+    /* =======================================================================
+       3. DATE / TIME PARSING
+       gviz returns Google serial dates as raw strings: "Date(2026,9,2)"
+       and time-only cells as "Date(1899,11,30,8,30,0)".
+       ===================================================================== */
+    const GDATE_RE = /^Date\((-?\d{1,6}),(\d{1,2}),(\d{1,6})(?:,(\d{1,2}),(\d{1,2})(?:,(\d{1,2}))?)?\)$/;
+
+    /** Parse a gviz date/time cell into a JS Date, or null. */
+    function parseGDate(raw) {
+        if (raw === null || raw === undefined) return null;
+        const m = GDATE_RE.exec(String(raw).trim());
+        if (!m) return null;
+        const y = +m[1], mo = +m[2], d = +m[3];
+        const h = m[4] === undefined ? 0 : +m[4];
+        const mi = m[5] === undefined ? 0 : +m[5];
+        const s = m[6] === undefined ? 0 : +m[6];
+        const date = new Date(y, mo, d, h, mi, s);
+        return isNaN(date.getTime()) ? null : date;
+    }
+
+    /** Excel/gviz serial epoch — the "day 0" used by time-only cells. */
+    const EXCEL_EPOCH_YEAR = 1899, EXCEL_EPOCH_MONTH = 11, EXCEL_EPOCH_DAY = 30;
+
+    /** True when a parsed date is really a time-of-day (Excel epoch era). */
+    function isTimeOnly(date) {
+        return !!date && date.getFullYear() >= EXCEL_EPOCH_YEAR && date.getFullYear() <= 1905;
+    }
+
+    function fmtTime12(date) {
+        if (!date) return '';
+        let h = date.getHours();
+        const m = date.getMinutes();
+        const ap = h >= 12 ? 'PM' : 'AM';
+        h = h % 12; if (h === 0) h = 12;
+        return h + ':' + String(m).padStart(2, '0') + ' ' + ap;
+    }
+
+    function fmtDayShort(date)   { return date ? date.toLocaleDateString(undefined, { weekday: 'short' }) : ''; }
+    function fmtDayNum(date)    { return date ? date.getDate() : ''; }
+    function fmtMonthShort(date) { return date ? date.toLocaleDateString(undefined, { month: 'short' }) : ''; }
+    function fmtFullDate(date)  {
+        return date ? date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Date not set';
+    }
+
+    function dayKey(date) {
+        return date ? date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() : 'nodate';
+    }
+
+    function sameDay(a, b) {
+        if (!a || !b) return false;
+        return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+
+    function today() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+    function formatRelative(ts) {
+        if (!ts) return '';
+        const secs = Math.round((Date.now() - ts) / 1000);
+        if (secs < 10)   return 'just now';
+        if (secs < 60)   return secs + 's ago';
+        const mins = Math.round(secs / 60);
+        if (mins < 60)   return mins + 'm ago';
+        return Math.round(mins / 60) + 'h ago';
+    }
+
+    /* =======================================================================
+       4. ACTIVITY TAXONOMY
+       The sheet writes activities inconsistently
+       ("Preaching/RC/BS", "PREACHING/ RV/BS", "BS/RV, CART WETNESSING").
+       Tokenise so nothing is lost and colours are stable.
+       ===================================================================== */
+    const TAG_META = {
+        preaching: { label: 'Preaching', cls: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-800/60' },
+        bs:        { label: 'BS',        cls: 'bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/40 dark:text-sky-200 dark:border-sky-800/60' },
+        rv:        { label: 'RV',        cls: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-800/60' },
+        rc:        { label: 'RC',        cls: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-200 dark:border-indigo-800/60' },
+        cart:      { label: 'Cart',      cls: 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-200 dark:border-rose-800/60' },
+        prayer:    { label: 'Prayer',    cls: 'bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/40 dark:text-violet-200 dark:border-violet-800/60' },
+        meeting:   { label: 'Meeting',   cls: 'bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/40 dark:text-teal-200 dark:border-teal-800/60' },
+        choir:     { label: 'Choir',     cls: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200 dark:bg-fuchsia-900/40 dark:text-fuchsia-200 dark:border-fuchsia-800/60' },
+        literature:{ label: 'Literature',cls: 'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-200 dark:border-cyan-800/60' }
+    };
+
+    const CATEGORIES = {
+        preaching: { label: 'Preaching',  cls: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200 dark:border-emerald-800/60' },
+        group:     { label: 'Group',      cls: 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-200 dark:border-rose-800/60' },
+        visit:     { label: 'Visits',     cls: 'bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/40 dark:text-sky-200 dark:border-sky-800/60' },
+        other:     { label: 'Other',      cls: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600' }
+    };
+
+    const TOKEN_ALIASES = {
+        'PREACHING': 'preaching', 'PREACH': 'preaching', 'SERMON': 'preaching',
+        'BS': 'bs', 'BIBLESTUDY': 'bs', 'BIBLES': 'bs', 'STUDY': 'bs',
+        'RV': 'rv', 'VISIT': 'visit', 'VISITATION': 'visit',
+        'RC': 'rc', 'RCL': 'rc',
+        'CART': 'cart', 'WETNESSING': 'cart', 'CARTT': 'cart',
+        'PRAYER': 'prayer', 'PRAY': 'prayer',
+        'MEETING': 'meeting', 'MIDWEEK': 'meeting',
+        'CHOIR': 'choir', 'MUSIC': 'choir',
+        'LITERATURE': 'literature', 'LIT': 'literature'
+    };
+
+    /** Classify a raw activity string. Never throws, never drops content. */
+    function classifyActivity(raw) {
+        const text = (raw || '').trim();
+        if (!text) return { category: 'other', tags: [] };
+
+        const tokens = text.toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
+        const seen = [], tags = [];
+        tokens.forEach(function (tk) {
+            const key = TOKEN_ALIASES[tk];
+            if (key && !seen.includes(key)) { seen.push(key); tags.push(key); }
+        });
+
+        const hasPreach = seen.includes('preaching');
+        const hasCart   = seen.includes('cart');
+        let category = 'other';
+        if (hasPreach)                       category = 'preaching';
+        else if (hasCart)                    category = 'group';
+        else if (seen.length)                 category = 'visit';
+        else if (/[A-Z]{2,}/.test(text))     category = 'visit';
+
+        return { category: category, tags: tags };
+    }
+
+    function tagsHTML(item, sizeClass) {
+        if (!item.tags.length) return '';
+        const pad = sizeClass === 'lg' ? 'text-sm px-2.5 py-1' : 'text-[10px] px-2 py-0.5';
+        return item.tags.map(function (t) {
+            const meta = TAG_META[t];
+            if (!meta) return '';
+            return '<span class="inline-flex items-center rounded-full border font-bold uppercase tracking-wide ' + pad + ' ' + meta.cls + '">' + esc(meta.label) + '</span>';
+        }).join('');
+    }
+
+    function initialsOf(name) {
+        if (!name) return '—';
+        const parts = String(name).trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return '—';
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    /* =======================================================================
+       5. SHEET FETCH (gviz JSONP — works from file://, no CORS)
+       headers=0 => gviz returns EVERY row verbatim (including the real
+       header row), so nothing is silently consumed as a column label.
+       ---------------------------------------------------------------------
+       FIX (C1): gviz ALWAYS answers with the literal expression
+       `google.visualization.Query.setResponse({...})` and IGNORES any
+       ?callback= parameter (verified against the live endpoint for the
+       `&callback=`, `;callback:` and `;responseType:jsonp` forms). It does
+       NOT call window[handler], and because the resulting script throws a
+       TypeError at *execution* time (not load time) `script.onerror` never
+       fires either — the only exit was the TIMEOUT_MS rejection.
+       The shim below must therefore exist before any gviz script is added,
+       and since gviz cannot address individual requests, only ONE request
+       may ever be in flight (guarded by state.syncing in sync()).
+       ===================================================================== */
+    window.google = window.google || { visualization: { Query: {} } };
+    let pendingGvizHandler = null;
+    window.google.visualization.Query.setResponse = function (json) {
+        const h = pendingGvizHandler;
+        pendingGvizHandler = null;
+        if (h) h(json);
+    };
+
+    function buildQuery() {
+        return 'https://docs.google.com/spreadsheets/d/' + CONFIG.SHEET_ID + '/gviz/tq' +
+               '?tqx=out:json;headers=0&gid=' + CONFIG.GID;
+    }
+
+    function fetchSheet() {
+        return new Promise(function (resolve, reject) {
+            const scriptId = 'gviz-' + Date.now();
+            let settled = false;
+
+            const timer = setTimeout(function () {
+                finish();
+                reject(new Error('Sheet request timed out'));
+            }, CONFIG.TIMEOUT_MS);
+
+            function finish() {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                pendingGvizHandler = null;
+                const old = document.getElementById(scriptId);
+                if (old && old.parentNode) old.parentNode.removeChild(old);
+            }
+
+            pendingGvizHandler = function (json) {
+                finish();
+                if (!json || json.status === 'error') {
+                    reject(new Error((json && (json.errors && json.errors[0] && json.errors[0].message)) || 'Sheet returned an error'));
+                    return;
+                }
+                resolve(json.table);
+            };
+
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.async = true;
+            script.src = buildQuery() + '&t=' + Date.now();
+            script.onerror = function () { finish(); reject(new Error('Network error while loading the sheet')); };
+            document.head.appendChild(script);
+        });
+    }
+
+    /* =======================================================================
+       6. NORMALISATION
+       ===================================================================== */
+    const HEADER_RULES = [
+        { field: 'date',     test: function (u) { return u === 'DATE' || u === 'DAY' || u.indexOf('SCHEDULE') !== -1; } },
+        { field: 'time',     test: function (u) { return u.indexOf('TIME') !== -1; } },
+        { field: 'assignee', test: function (u) { return /BROTHER|SISTER|ASSIGN|PERSON|^NAME|^WHO/.test(u); } },
+        { field: 'activity', test: function (u) { return /ACTIVITY|MINISTRY|SESSION|DUTY/.test(u); } },
+        { field: 'remarks',  test: function (u) { return /REMARK|NOTE|COMMENT|INSTRUCT/.test(u); } }
+    ];
+
+    // FIX (C2): this is an IGNORE list, not a "month" detector. It must be
+    // consulted ONLY after HEADER_RULES have had their chance to claim a
+    // column — running it first swallowed every real header on this sheet
+    // ("Month:", "BROTHERS ASSIGNED", "ACTIVITY", "REMARKS") and forced the
+    // column map onto the hardcoded positional fallback.
+    const IGNORED_HEADER_RE = /^(month:?|tgl|oras|araw|notes?)$/i;
+
+    // Plausible month name — with headers=0 an unlabelled column's gviz label
+    // is just "A"/"B"/"C", which must never be shown as a month. FIX (W4).
+    const MONTH_NAME_RE = /^(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(t(ember)?)?|oct(ober)?|nov(ember)?|dec(ember)?)$/i;
+
+    const CATEGORY_ORDER = Object.keys(CATEGORIES);
+
+    function cellRaw(cell) {
+        if (!cell) return null;
+        if (cell.v === null || cell.v === undefined) return null;
+        return cell.v;
+    }
+    function cellText(cell) {
+        if (!cell) return '';
+        const v = (cell.f !== undefined && cell.f !== null) ? cell.f : cell.v;
+        if (v === null || v === undefined) return '';
+        return String(v).trim();
+    }
+
+    /**
+     * Find the header row: the first row (within the first 12) that matches at
+     * least two known header labels. The old code required the literal word
+     * "DATE", which this sheet never has -> it fell through to startRow=2 and
+     * silently dropped the first schedule row.
+     */
+    function findHeaderRow(rows) {
+        for (let i = 0; i < Math.min(12, rows.length); i++) {
+            const cells = rows[i].c || [];
+            let hits = 0, dataish = 0;
+            for (let j = 0; j < cells.length; j++) {
+                const raw = cellRaw(cells[j]);
+                if (raw !== null && GDATE_RE.test(String(raw))) { dataish++; continue; }
+                const u = cellText(cells[j]).toUpperCase();
+                if (!u || u.length > 40) continue;
+                if (HEADER_RULES.some(function (r) { return r.test(u); })) hits++;
+            }
+            if (hits >= 2 && dataish === 0) return i;
+        }
+        return -1;
+    }
+
+    /** Map every column to a field so unknown columns are still rendered. */
+    function buildColumnMap(table, headerIdx) {
+        const cols = table.cols || [];
+        const n = cols.length;
+        const map = { time: -1, date: -1, assignee: -1, activity: -1, remarks: -1, extra: [], labels: {} };
+
+        const headerCells = headerIdx >= 0 ? ((table.rows[headerIdx] || {}).c || []) : [];
+        const labels = [];
+        for (let i = 0; i < n; i++) {
+            const fromRow = cellText(headerCells[i]);
+            const fromCol = String((cols[i] && cols[i].label) || '').trim();
+            labels[i] = fromRow || fromCol;
+            if (labels[i]) map.labels[i] = labels[i];
+        }
+
+        // Pass 1 — explicit header labels win. FIX (C2): field rules run FIRST;
+        // the ignore-list is only consulted for a label no rule claimed.
+        for (let i = 0; i < n; i++) {
+            const u = labels[i].toUpperCase().replace(/[^A-Z/ ]/g, '').trim();
+            if (!u) { map.extra.push(i); continue; }
+            let matched = false;
+            for (const rule of HEADER_RULES) {
+                if (map[rule.field] === -1 && rule.test(u)) { map[rule.field] = i; matched = true; break; }
+            }
+            if (!matched && !IGNORED_HEADER_RE.test(labels[i].trim())) map.extra.push(i);
+        }
+
+        // A column already serving a field must not be reused by another field.
+        function unclaimed(i) {
+            return [map.date, map.time, map.assignee, map.activity, map.remarks].indexOf(i) === -1;
+        }
+
+        // Pass 2 — gviz column types (robust when headers are unlabelled).
+        // FIX (C2): being parked in `extra` is NOT a reason to skip a column,
+        // or this pass can never rescue a column whose label was ignored.
+        if (map.date === -1) {
+            for (let i = 0; i < n; i++) {
+                if (map.date === -1 && cols[i] && cols[i].type === 'date' && unclaimed(i)) { map.date = i; }
+            }
+        }
+        if (map.time === -1) {
+            // gviz reports a time-only column as type 'date' (Excel epoch era),
+            // so prefer a real 'datetime' before falling back to the first 'date'.
+            for (let i = 0; i < n; i++) {
+                if (map.time === -1 && cols[i] && cols[i].type === 'datetime' && unclaimed(i)) { map.time = i; }
+            }
+            for (let i = 0; i < n; i++) {
+                if (map.time === -1 && cols[i] && cols[i].type === 'date' && unclaimed(i)) { map.time = i; }
+            }
+        }
+
+        // Pass 3 — positional fallback for this sheet's known layout. Now a
+        // genuine last resort (Passes 1-2 resolve it), guarded so the same
+        // column can never serve two fields. FIX (C3).
+        if (map.date === -1 && n > 1)     map.date = 1;
+        if (map.time === -1 && n > 0)     map.time = 0;
+        if (map.assignee === -1 && n > 2) map.assignee = 2;
+        if (map.activity === -1 && n > 3) map.activity = 3;
+        if (map.remarks === -1 && n > 4)  map.remarks = 4;
+        if (map.time !== -1 && map.time === map.date) map.time = -1;
+
+        // Fail loudly rather than rendering wrong data silently. FIX (C3).
+        const unresolved = ['date', 'time', 'assignee', 'activity', 'remarks']
+            .filter(function (k) { return map[k] === -1; });
+        if (unresolved.length) console.warn('[schedule] unmapped columns:', unresolved.join(', '), map);
+
+        [map.date, map.time, map.assignee, map.activity, map.remarks].forEach(function (idx) {
+            if (idx >= 0) { const p = map.extra.indexOf(idx); if (p !== -1) map.extra.splice(p, 1); }
+        });
+        map.extra.sort(function (a, b) { return a - b; });
+        return map;
+    }
+
+    function prettyColumnName(idx, map) {
+        if (map.labels[idx]) return map.labels[idx];
+        return 'Column ' + String.fromCharCode(65 + idx);
+    }
+
+    /** Turn the raw gviz table into sorted, typed schedule items. */
+    function normalise(table) {
+        const rows = (table && table.rows) || [];
+        const headerIdx = findHeaderRow(rows);
+        const map = buildColumnMap(table, headerIdx);
+        const startRow = headerIdx === -1 ? 0 : headerIdx + 1;
+        const items = [];
+        let carriedDate = null, carriedTime = null;
+
+        for (let r = startRow; r < rows.length; r++) {
+            const cells = rows[r].c || [];
+
+            const timeCell  = map.time  >= 0 ? cells[map.time]  : null;
+            const dateCell  = map.date  >= 0 ? cells[map.date]  : null;
+            const asgCell   = map.assignee >= 0 ? cells[map.assignee] : null;
+            const actCell   = map.activity >= 0 ? cells[map.activity] : null;
+            const remCell   = map.remarks  >= 0 ? cells[map.remarks]  : null;
+
+            const assignee = cellText(asgCell);
+            const activity = cellText(actCell);
+            const remarks  = cellText(remCell);
+
+            const extra = [];
+            for (const idx of map.extra) {
+                const txt = cellText(cells[idx]);
+                if (txt) extra.push({ name: prettyColumnName(idx, map), value: txt });
+            }
+
+            // Typed date/time — parsed ONCE. FIX (W1/W2): the old code parsed the
+            // same cells twice; the "promote datetime to date" branch nulled
+            // `time` and the next line immediately re-parsed and restored it, so
+            // both fields ended up holding the same instant. It also assigned
+            // date = new Date(1899,11,30) for a time-only value BEFORE the
+            // merged-cell carry-down below, producing phantom 1899 dates that
+            // permanently blocked carry-down.
+            const rawDate = cellRaw(dateCell);
+            const rawTime = cellRaw(timeCell);
+            let date = parseGDate(rawDate);
+            let time = parseGDate(rawTime);
+
+            if (!date && time && !isTimeOnly(time)) {
+                // The time column actually holds a full datetime: promote it.
+                date = time;
+                time = null;
+            }
+            if (time && isTimeOnly(time)) {
+                // Time-only value: it carries no day, so reduce it to a pure
+                // clock value and let merged-cell carry-down supply the date.
+                time = new Date(EXCEL_EPOCH_YEAR, EXCEL_EPOCH_MONTH, EXCEL_EPOCH_DAY,
+                                time.getHours(), time.getMinutes(), time.getSeconds());
+            }
+            if (date && isTimeOnly(date)) date = null;   // a bare clock is not a date
+
+            // Fully blank row -> nothing to post
+            const isBlank = !assignee && !activity && !remarks && !date && !time && extra.length === 0;
+
+            // Merged-cell carry-down: gviz blanks continuation cells of a merge.
+            if (!date && (assignee || activity || remarks || extra.length)) date = carriedDate;
+            if (!time && (assignee || activity || remarks || extra.length)) time = carriedTime;
+            if (date) carriedDate = date;
+            if (time) carriedTime = time;
+            if (isBlank) continue;
+
+            // Header repeats inside the body
+            const actUpper = activity.toUpperCase();
+            if (!assignee && !date && (actUpper === 'ACTIVITY' || actUpper === 'REMARKS')) continue;
+
+            const cls = classifyActivity(activity);
+
+            items.push({
+                id: 'r' + r + '-' + items.length,
+                row: r,
+                date: date,
+                time: time,
+                dateText: date ? fmtFullDate(date) : (cellText(dateCell) || 'Date not set'),
+                dayKey: dayKey(date),
+                isToday: sameDay(date, today()),
+                assignee: assignee,
+                assigneeCanon: assignee.toLowerCase().trim(),
+                initials: initialsOf(assignee),
+                activity: activity,
+                activityCanon: activity.toLowerCase().trim(),
+                remarks: remarks,
+                category: cls.category,
+                tags: cls.tags,
+                extra: extra,
+                searchBlob: [assignee, activity, remarks, cellText(dateCell), cellText(timeCell)]
+                    .concat(extra.map(function (e) { return e.name + ' ' + e.value; }))
+                    .join(' ').toLowerCase()
+            });
+        }
+
+        items.sort(function (a, b) {
+            const at = a.date ? a.date.getTime() : Infinity;
+            const bt = b.date ? b.date.getTime() : Infinity;
+            if (at !== bt) return at - bt;
+            const av = a.time ? a.time.getTime() : 0;
+            const bv = b.time ? b.time.getTime() : 0;
+            if (av !== bv) return av - bv;
+            return (a.assignee || '').localeCompare(b.assignee || '');
+        });
+
+        return { items: items, map: map, headerRow: headerIdx };
+    }
+
+    /** Month/year from the data itself (majority month), never from a raw cell. */
+    function derivePeriod(items, table) {
+        const counts = new Map();
+        items.forEach(function (it) {
+            if (!it.date) return;
+            const key = it.date.getFullYear() + '-' + it.date.getMonth();
+            counts.set(key, (counts.get(key) || 0) + 1);
+        });
+        let best = null, bestN = -1;
+        counts.forEach(function (v, k) { if (v > bestN) { bestN = v; best = k; } });
+        if (best) {
+            const parts = best.split('-');
+            const y = +parts[0], m = +parts[1];
+            return {
+                month: new Date(y, m, 1).toLocaleDateString(undefined, { month: 'long' }),
+                year: String(y)
+            };
+        }
+        // Fallback: a gviz column label holding a real month name. FIX (W4):
+        // with headers=0 an unlabelled column's label is just "A"/"B"/"C", which
+        // must never be rendered as the month.
+        const cols = (table && table.cols) || [];
+        for (const c of cols) {
+            const l = String((c && c.label) || '').trim().replace(/:$/, '');
+            if (l && MONTH_NAME_RE.test(l)) return { month: l, year: String(new Date().getFullYear()) };
+        }
+        const now = new Date();
+        return { month: now.toLocaleDateString(undefined, { month: 'long' }), year: String(now.getFullYear()) };
+    }
+
+    /* =======================================================================
+       7. STATE + FILTERING
+       ===================================================================== */
+    const state = {
+        all: [],
+        filtered: [],
+        view: (function () { const v = readStore(CONFIG.STORAGE.view); return (v === 'card' || v === 'list' || v === 'tv') ? v : 'card'; })(),
+        query: '',
+        activity: 'ALL',
+        category: 'ALL',
+        assignee: 'ALL',
+        todayOnly: false,
+        limit: CONFIG.PAGE_SIZE,
+        lastSync: null,
+        tvForcedDark: false,
+        userTheme: readStore(CONFIG.STORAGE.theme),
+        loadingFirstLoad: true,
+        syncing: false
+    };
+
+    function applyFilters(resetLimit) {
+        if (resetLimit !== false) state.limit = CONFIG.PAGE_SIZE;
+        const q = state.query;
+        const t = today();
+
+        state.filtered = state.all.filter(function (it) {
+            if (state.activity !== 'ALL' && it.activityCanon !== state.activity) return false;
+            if (state.category !== 'ALL' && it.category !== state.category) return false;
+            if (state.assignee !== 'ALL' && it.assigneeCanon !== state.assignee) return false;
+            if (state.todayOnly) {
+                if (!it.date) return false;
+                if (!sameDay(it.date, t)) return false;
+            }
+            if (q && it.searchBlob.indexOf(q) === -1) return false;
+            return true;
+        });
+
+        updateResultCount();
+        render();
+    }
+
+    function updateResultCount() {
+        const total = state.all.length, shown = state.filtered.length;
+        if (!total) { el.resultCount.textContent = ''; return; }
+        el.resultCount.textContent = shown === total
+            ? total + (total === 1 ? ' entry' : ' entries')
+            : shown + ' of ' + total;
+    }
+
+    /**
+     * Build filter options.
+     * The sheet mixes casing for the same person ("Jehoram Belmonte" /
+     * "JEHORAM BELMONTE") and for the same activity, so facets are keyed
+     * case-insensitively and displayed with the most readable spelling found.
+     */
+    function buildFacets() {
+        // Assignee — merge case variants of the same name.
+        const people = new Map();
+        state.all.forEach(function (i) {
+            if (!i.assigneeCanon) return;
+            const cur = people.get(i.assigneeCanon);
+            if (cur === undefined) { people.set(i.assigneeCanon, { label: i.assignee, n: 1 }); return; }
+            cur.n++;
+            // Prefer a spelling that is not ALL CAPS.
+            if (cur.label === cur.label.toUpperCase() && i.assignee !== i.assignee.toUpperCase()) cur.label = i.assignee;
+        });
+
+        // Activity — merge case variants, keep distinct orderings separate.
+        const acts = new Map();
+        state.all.forEach(function (i) {
+            if (!i.activityCanon) return;
+            if (!acts.has(i.activityCanon)) acts.set(i.activityCanon, { label: i.activity, n: 0 });
+            const c = acts.get(i.activityCanon);
+            c.n++;
+            if (c.label === c.label.toUpperCase() && i.activity !== i.activity.toUpperCase()) c.label = i.activity;
+        });
+
+        // Category — only offer types actually present.
+        const cats = new Map();
+        state.all.forEach(function (i) {
+            if (i.category && CATEGORIES[i.category]) cats.set(i.category, (cats.get(i.category) || 0) + 1);
+        });
+
+        fillSelect(el.assigneeSel, people, state.assignee, 'All brothers');
+        fillSelect(el.activitySel, acts, state.activity, 'All activities');
+        fillSelect(el.categorySel, cats, state.category, 'All types', true);
+    }
+
+    function fillSelect(sel, map, keep, allLabel, keepOrder) {
+        if (!sel) return;
+        const entries = Array.from(map.entries());
+        if (keepOrder) {
+            entries.sort(function (a, b) { return CATEGORY_ORDER.indexOf(a[0]) - CATEGORY_ORDER.indexOf(b[0]); });
+        } else {
+            entries.sort(function (a, b) { return String(a[1].label).localeCompare(String(b[1].label)); });
+        }
+
+        sel.innerHTML = '';
+        const first = document.createElement('option');
+        first.value = 'ALL';
+        first.textContent = allLabel;
+        sel.appendChild(first);
+
+        entries.forEach(function (e) {
+            const o = document.createElement('option');
+            o.value = e[0];
+            o.textContent = e[1].label + (e[1].n > 1 ? '  (' + e[1].n + ')' : '');
+            sel.appendChild(o);
+        });
+
+        const stillValid = entries.some(function (e) { return e[0] === keep; });
+        sel.value = stillValid ? keep : 'ALL';
+        if (sel === el.activitySel)   state.activity   = sel.value;
+        if (sel === el.categorySel)   state.category   = sel.value;
+        if (sel === el.assigneeSel)   state.assignee   = sel.value;
+    }
+
+    /* =======================================================================
+       8. RENDERING
+       ===================================================================== */
+    function groupByDay(items) {
+        const groups = [];
+        let current = null;
+        items.forEach(function (it) {
+            if (!current || current.key !== it.dayKey) {
+                current = { key: it.dayKey, date: it.date, items: [] };
+                groups.push(current);
+            }
+            current.items.push(it);
+        });
+        return groups;
+    }
+
+    function emptyStateHTML(message, sub) {
+        return '<div class="col-span-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm p-10 text-center">' +
+            '<svg class="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' +
+            '<h3 class="mt-3 text-sm font-semibold text-gray-900 dark:text-gray-200">' + esc(message) + '</h3>' +
+            '<p class="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">' + esc(sub) + '</p>' +
+            '</div>';
+    }
+
+    function extrasHTML(item) {
+        if (!item.extra.length) return '';
+        return '<dl class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 grid grid-cols-1 xs:grid-cols-2 gap-x-4 gap-y-1.5">' +
+            item.extra.map(function (e) {
+                return '<div class="min-w-0">' +
+                    '<dt class="text-[10px] uppercase tracking-wide font-bold text-gray-400 dark:text-gray-500 truncate">' + esc(e.name) + '</dt>' +
+                    '<dd class="text-xs font-semibold text-gray-700 dark:text-gray-300 break-words">' + esc(e.value) + '</dd>' +
+                    '</div>';
+            }).join('') + '</dl>';
+    }
+
+    function remarksHTML(item, size) {
+        if (!item.remarks) return '';
+        const cls = size === 'lg'
+            ? 'mt-4 pt-4 border-t border-gray-600 text-base text-gray-300'
+            : 'mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300';
+        return '<div class="' + cls + '">' +
+            '<p class="text-[10px] uppercase tracking-wide font-bold text-gray-400 dark:text-gray-500 mb-1">Remarks</p>' +
+            '<p class="italic break-words">' + esc(item.remarks) + '</p></div>';
+    }
+
+    /* ---------- CARD VIEW ---------- */
+    function cardHTML(item) {
+        const cat = CATEGORIES[item.category] || CATEGORIES.other;
+        const todayRing = item.isToday ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : '';
+        return '' +
+        '<article class="relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ' + todayRing + '">' +
+            (item.isToday ? '<span class="absolute top-0 right-0 z-10 bg-brand-600 text-white text-[9px] font-extrabold uppercase tracking-widest px-2 py-1 rounded-bl-lg">Today</span>' : '') +
+            '<div class="flex items-center gap-3 px-4 sm:px-5 py-3 bg-gray-50 dark:bg-gray-700/40 border-b border-gray-100 dark:border-gray-600">' +
+                '<div class="shrink-0 text-center leading-none w-11">' +
+                    '<div class="text-[9px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400">' + esc(fmtDayShort(item.date) || '—') + '</div>' +
+                    '<div class="text-xl font-extrabold text-gray-900 dark:text-white tabular-nums">' + esc(fmtDayNum(item.date) || '—') + '</div>' +
+                    '<div class="text-[9px] uppercase font-bold tracking-widest text-gray-400">' + esc(fmtMonthShort(item.date) || '') + '</div>' +
+                '</div>' +
+                '<div class="min-w-0 flex-1">' +
+                    (item.time
+                        ? '<div class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 dark:text-brand-300">' +
+                            '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' +
+                            esc(fmtTime12(item.time)) + '</div>'
+                        : '<div class="text-xs font-semibold text-gray-400 dark:text-gray-500">No time set</div>') +
+                    '<div class="text-[11px] text-gray-500 dark:text-gray-400 truncate">' + esc(item.dateText) + '</div>' +
+                '</div>' +
+            '</div>' +
+
+            '<div class="p-4 sm:p-5 flex-grow flex flex-col gap-3">' +
+                '<div class="flex items-start gap-3">' +
+                    '<span class="shrink-0 w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900/60 text-brand-800 dark:text-brand-200 text-xs font-extrabold flex items-center justify-center">' + esc(item.initials) + '</span>' +
+                    '<div class="min-w-0 flex-1">' +
+                        '<p class="text-[10px] uppercase tracking-wide font-bold text-gray-400 dark:text-gray-500 mb-0.5">Assigned to</p>' +
+                        (item.assignee
+                            ? '<p class="text-base font-bold text-gray-900 dark:text-white leading-tight break-words">' + esc(item.assignee) + '</p>'
+                            : '<p class="text-base font-semibold text-gray-400 dark:text-gray-500 italic leading-tight">Unassigned</p>') +
+                    '</div>' +
+                '</div>' +
+
+                '<div class="flex flex-wrap items-center gap-1.5">' +
+                    '<span class="inline-flex items-center rounded-full border text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 ' + cat.cls + '">' + esc(cat.label) + '</span>' +
+                    tagsHTML(item) +
+                    (item.activity
+                        ? '<span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 truncate" title="' + esc(item.activity) + '">' + esc(item.activity) + '</span>'
+                        : '<span class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 italic">No activity specified</span>') +
+                '</div>' +
+
+                remarksHTML(item) + extrasHTML(item) +
+            '</div>' +
+        '</article>';
+    }
+
+    function dayBarHTML(group, total) {
+        if (!group.date) {
+            return '<div class="flex items-center gap-3"><h3 class="text-sm font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400">Undated</h3>' +
+                   '<div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>' +
+                   '<span class="text-xs font-bold text-gray-400 tabular-nums">' + group.items.length + '</span></div>';
+        }
+        const isToday = sameDay(group.date, today());
+        return '<div class="flex items-center gap-3">' +
+            '<h3 class="text-sm sm:text-base font-extrabold tracking-tight ' + (isToday ? 'text-brand-600 dark:text-brand-400' : 'text-gray-900 dark:text-white') + '">' +
+                esc(fmtFullDate(group.date)) + (isToday ? ' <span class="text-[10px] align-middle uppercase tracking-widest bg-brand-600 text-white px-1.5 py-0.5 rounded">Today</span>' : '') +
+            '</h3>' +
+            '<div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>' +
+            '<span class="text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap">' + group.items.length + (group.items.length === 1 ? ' entry' : ' entries') + '</span>' +
+        '</div>';
+    }
+
+    function renderCard() {
+        const host = containers.card;
+        host.innerHTML = '';
+        const slice = state.filtered.slice(0, state.limit);
+
+        if (!slice.length) {
+            host.innerHTML = state.all.length
+                ? emptyStateHTML('No schedule found', 'Nothing matches your search or filter criteria. Try clearing them.')
+                : emptyStateHTML('No schedule found', 'The sheet was read successfully but contained no schedule rows.');
+            return;
+        }
+
+        const groups = groupByDay(slice);
+        groups.forEach(function (group) {
+            const sec = document.createElement('section');
+            sec.className = 'animate-fade-up';
+            const bar = document.createElement('div');
+            bar.className = 'mb-3';
+            bar.innerHTML = dayBarHTML(group);
+            sec.appendChild(bar);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid-auto';
+            grid.innerHTML = group.items.map(cardHTML).join('');
+            sec.appendChild(grid);
+            host.appendChild(sec);
+        });
+    }
+
+    /* ---------- LIST VIEW ---------- */
+    function listHTML(item) {
+        const cat = CATEGORIES[item.category] || CATEGORIES.other;
+        return '' +
+        '<article class="group bg-white dark:bg-gray-800 rounded-lg shadow-sm border px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-gray-200 dark:border-gray-700 hover:border-brand-500/60 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors' +
+            (item.isToday ? ' ring-1 ring-brand-500' : '') + '">' +
+
+            '<div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-grow">' +
+                '<div class="shrink-0 text-center leading-none w-12 sm:w-14 py-1 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">' +
+                    '<div class="text-[9px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400">' + esc(fmtDayShort(item.date) || '—') + '</div>' +
+                    '<div class="text-lg font-extrabold text-gray-900 dark:text-white tabular-nums">' + esc(fmtDayNum(item.date) || '—') + '</div>' +
+                '</div>' +
+
+                '<div class="min-w-0 flex-1">' +
+                    '<div class="flex items-center gap-2 flex-wrap">' +
+                        (item.time
+                            ? '<span class="text-xs font-extrabold text-brand-700 dark:text-brand-300 tabular-nums">' + esc(fmtTime12(item.time)) + '</span>'
+                            : '<span class="text-xs font-semibold text-gray-400 dark:text-gray-500">No time</span>') +
+                        (item.assignee
+                            ? '<span class="text-sm font-bold text-gray-900 dark:text-white break-words">' + esc(item.assignee) + '</span>'
+                            : '<span class="text-sm font-semibold text-gray-400 dark:text-gray-500 italic">Unassigned</span>') +
+                    '</div>' +
+                    (item.remarks ? '<p class="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5 line-2">“' + esc(item.remarks) + '”</p>' : '') +
+                    (item.extra.length ? '<p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 truncate">' + esc(item.extra.map(function (e) { return e.name + ': ' + e.value; }).join(' · ')) + '</p>' : '') +
+                '</div>' +
+            '</div>' +
+
+            '<div class="shrink-0 flex flex-wrap items-center gap-1.5">' +
+                '<span class="inline-flex items-center rounded-full border text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 ' + cat.cls + '">' + esc(cat.label) + '</span>' +
+                tagsHTML(item) +
+                (item.activity ? '<span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 max-w-[9rem] truncate" title="' + esc(item.activity) + '">' + esc(item.activity) + '</span>' : '') +
+            '</div>' +
+        '</article>';
+    }
+
+    function renderList() {
+        const host = containers.list;
+        const slice = state.filtered.slice(0, state.limit);
+        host.innerHTML = slice.length
+            ? slice.map(listHTML).join('')
+            : emptyStateHTML('No schedule found', state.all.length ? 'Nothing matches your search or filter criteria.' : 'The sheet contained no schedule rows.');
+    }
+
+    /* ---------- TV VIEW ---------- */
+    function tvCardHTML(item) {
+        const cat = CATEGORIES[item.category] || CATEGORIES.other;
+        return '' +
+        '<article class="tv-card bg-gray-800 border-gray-700 rounded-xl border overflow-hidden flex flex-col h-full">' +
+            '<div class="flex items-stretch gap-0 border-b-2 border-gray-600">' +
+                '<div class="shrink-0 flex flex-col items-center justify-center px-4 py-2 bg-gray-700 min-w-[4.5rem]">' +
+                    '<span class="tv-xs uppercase font-extrabold tracking-widest text-brand-400">' + esc(fmtDayShort(item.date) || '—') + '</span>' +
+                    '<span class="tv-h1 font-extrabold text-white leading-none tabular-nums">' + esc(fmtDayNum(item.date) || '—') + '</span>' +
+                '</div>' +
+                '<div class="flex-1 min-w-0 flex items-center gap-3 px-4 py-2">' +
+                    (item.time
+                        ? '<span class="tv-h2 font-extrabold text-brand-300 tabular-nums whitespace-nowrap">' + esc(fmtTime12(item.time)) + '</span>'
+                        : '<span class="tv-sm font-semibold text-gray-500">No time set</span>') +
+                    '<span class="inline-flex items-center rounded-md border tv-xs font-extrabold uppercase tracking-wide px-2 py-0.5 ' + cat.cls + '">' + esc(cat.label) + '</span>' +
+                '</div>' +
+            '</div>' +
+
+            '<div class="p-5 flex-grow flex flex-col gap-3">' +
+                '<div class="flex items-center gap-4">' +
+                    '<span class="shrink-0 w-12 h-12 rounded-full bg-brand-600 text-white text-base font-extrabold flex items-center justify-center">' + esc(item.initials) + '</span>' +
+                    '<div class="min-w-0">' +
+                        (item.assignee
+                            ? '<p class="tv-h2 font-extrabold text-white leading-tight break-words">' + esc(item.assignee) + '</p>'
+                            : '<p class="tv-h2 font-bold text-gray-500 italic leading-tight">Unassigned</p>') +
+                        '<p class="tv-sm text-gray-400 font-medium">' + esc(item.dateText) + '</p>' +
+                    '</div>' +
+                '</div>' +
+
+                '<div class="flex flex-wrap items-center gap-2">' + tagsHTML(item, 'lg') + '</div>' +
+
+                (item.activity
+                    ? '<p class="tv-sm font-bold text-gray-200 break-words">' + esc(item.activity) + '</p>'
+                    : '<p class="tv-sm font-semibold text-gray-500 italic">No activity specified</p>') +
+
+                (item.remarks
+                    ? '<div class="mt-auto pt-3 border-t-2 border-gray-600"><p class="tv-xs uppercase tracking-widest font-extrabold text-gray-500 mb-1">Remarks</p>' +
+                      '<p class="tv-sm italic text-gray-300 break-words">' + esc(item.remarks) + '</p></div>'
+                    : '') +
+
+                (item.extra.length
+                    ? '<div class="mt-auto pt-3 border-t-2 border-gray-600 flex flex-wrap gap-x-5 gap-y-1">' +
+                      item.extra.map(function (e) {
+                          return '<span class="tv-xs text-gray-400"><span class="font-extrabold uppercase tracking-wide">' + esc(e.name) + ':</span> ' + esc(e.value) + '</span>';
+                      }).join('') + '</div>'
+                    : '') +
+            '</div>' +
+        '</article>';
+    }
+
+    function renderTV() {
+        const host = el.tvGrid;
+        const slice = state.filtered.slice(0, state.limit);
+        host.innerHTML = slice.length
+            ? groupByDay(slice).map(function (group) {
+                return '<section class="mb-7 last:mb-0">' +
+                    '<div class="tv-daybar flex items-center gap-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 px-4 py-2">' +
+                        '<h3 class="tv-h2 font-extrabold text-white tracking-tight">' + esc(group.date ? fmtFullDate(group.date) : 'Undated') + '</h3>' +
+                        (group.date && sameDay(group.date, today()) ? '<span class="tv-xs uppercase tracking-widest bg-brand-600 text-white px-2 py-0.5 rounded font-extrabold">Today</span>' : '') +
+                        '<div class="flex-1"></div>' +
+                        '<span class="tv-sm font-bold text-gray-400 tabular-nums">' + group.items.length + (group.items.length === 1 ? ' entry' : ' entries') + '</span>' +
+                    '</div>' +
+                    '<div class="tv-grid">' + group.items.map(tvCardHTML).join('') + '</div>' +
+                    '</section>';
+            }).join('')
+            : emptyStateHTML('No schedule found', state.all.length ? 'Nothing matches the current filters.' : 'The sheet contained no schedule rows.');
+    }
+
+    function render() {
+        // FIX (W3): the old early-return on !state.all.length made every
+        // "the sheet contained no schedule rows" empty-state branch
+        // unreachable, so an empty sheet rendered a blank void.
+        // But on the very first load there is genuinely nothing to say yet:
+        // setView() -> render() runs before sync() resolves, so without this
+        // guard the page would flash "contained no schedule rows" at the user
+        // and then immediately replace it with the data.
+        if (state.loadingFirstLoad) return;
+        if (state.view === 'card') renderCard();
+        else if (state.view === 'list') renderList();
+        else renderTV();
+
+        const more = state.filtered.length > state.limit;
+        el.loadMoreWrap.hidden = !more;
+        if (more) {
+            const remaining = state.filtered.length - state.limit;
+            el.loadMoreLabel.textContent = 'Show ' + Math.min(CONFIG.PAGE_SIZE, remaining) +
+                ' more of ' + remaining + ' remaining';
+        }
+    }
+
+    /* ---------- TV clock ---------- */
+    let clockTimer = null;
+    function updateClock() {
+        if (state.view !== 'tv') return;
+        const now = new Date();
+        el.tvClock.textContent = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+        el.tvToday.textContent = now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    function manageClock() {
+        if (state.view === 'tv' && !clockTimer) {
+            updateClock();
+            clockTimer = setInterval(updateClock, 1000);
+        } else if (state.view !== 'tv' && clockTimer) {
+            clearInterval(clockTimer);
+            clockTimer = null;
+        }
+    }
+
+    /* =======================================================================
+       9. VIEW / THEME
+       ===================================================================== */
+    function preferredDark() {
+        if (state.userTheme) return state.userTheme === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    function updateThemeIcons() {
+        const dark = document.documentElement.classList.contains('dark');
+        el.iconDark.classList.toggle('hidden', !dark);
+        el.iconLight.classList.toggle('hidden', dark);
+    }
+
+    function setTheme(dark, persist) {
+        document.documentElement.classList.toggle('dark', dark);
+        if (persist) { state.userTheme = dark ? 'dark' : 'light'; store(CONFIG.STORAGE.theme, state.userTheme); }
+        updateThemeIcons();
+    }
+
+    function setView(view) {
+        state.view = view;
+        store(CONFIG.STORAGE.view, view);
+
+        $$('.view-btn').forEach(function (btn) {
+            const active = btn.dataset.view === view;
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+            btn.setAttribute('tabindex', active ? '0' : '-1');
+            btn.classList.toggle('bg-white', active);
+            btn.classList.toggle('dark:bg-gray-700', active);
+            btn.classList.toggle('shadow-sm', active);
+            btn.classList.toggle('text-brand-700', active);
+            btn.classList.toggle('dark:text-brand-300', active);
+            btn.classList.toggle('text-gray-600', !active);
+            btn.classList.toggle('dark:text-gray-400', !active);
+        });
+
+        Object.keys(containers).forEach(function (k) { containers[k].hidden = (k !== view); });
+
+        const isTV = view === 'tv';
+        el.body.classList.toggle('tv-mode', isTV);
+        el.main.classList.toggle('max-w-6xl', !isTV);
+        el.header.classList.toggle('p-5', !isTV);
+        el.header.classList.toggle('sm:p-6', !isTV);
+        el.fullscreenBtn.classList.toggle('hidden', !isTV && window.innerWidth < 640);
+        el.fullscreenBtn.classList.toggle('sm:inline-flex', true);
+
+        // TV mode always reads best on dark; user's stored pref is preserved.
+        if (isTV) {
+            state.tvForcedDark = true;
+            setTheme(true, false);
+        } else {
+            state.tvForcedDark = false;
+            setTheme(preferredDark(), false);
+        }
+
+        if (isTV) {
+            el.tvTitle.textContent = 'Field Ministry Schedule';
+            el.tvSubtitle.textContent = el.month.textContent + (el.year.textContent ? ' ' + el.year.textContent : '') +
+                (state.all.length ? ' · ' + state.filtered.length + ' of ' + state.all.length + ' entries' : '');
+        }
+
+        manageClock();
+        render();
+    }
+
+    /* =======================================================================
+       10. SYNC
+       ===================================================================== */
+    let requestSeq = 0;
+
+    function setSyncBadge(stateName, text) {
+        const map = {
+            syncing: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+            ok:      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+            stale:   'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+            error:   'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+            idle:    'bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300'
+        };
+        el.syncBadge.className = 'text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ' + map[stateName];
+        el.syncBadge.textContent = text;
+    }
+
+    function updateSyncedBadge() {
+        if (!state.lastSync) { el.syncedBadge.textContent = ''; return; }
+        el.syncedBadge.textContent = '· synced ' + state.lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
+            ' (' + formatRelative(state.lastSync.getTime()) + ')';
+    }
+
+    function showError(message, hint) {
+        el.errorText.textContent = message;
+        el.errorHint.textContent = hint || 'Make sure the sheet is shared as "Anyone with the link can view".';
+        el.error.hidden = false;
+        el.retryBtn.hidden = false;
+    }
+
+    function hideError() {
+        el.error.hidden = true;
+        el.retryBtn.hidden = true;
+    }
+
+    async function sync(manual) {
+        // FIX (W8/W9): only ONE request may be in flight. gviz routes every
+        // response through the single global google.visualization.Query
+        // .setResponse (see the shim in section 5), so two overlapping requests
+        // cannot be told apart and the earlier promise would never settle.
+        // This also gives `state.syncing` its first real reader.
+        if (state.syncing) {
+            if (manual) showToast('A sync is already in progress.', 'info');
+            return;
+        }
+        const seq = ++requestSeq;
+        state.syncing = true;
+        el.syncBtn.disabled = true;
+        el.syncBtnLabel.textContent = 'Syncing…';
+        el.syncIcon.classList.add('animate-spin');
+
+        setSyncBadge('syncing', 'Syncing…');
+        if (state.loadingFirstLoad) el.loading.hidden = false;
+
+        try {
+            const table = await fetchSheet();
+            if (seq !== requestSeq) return;               // a newer request superseded this one
+            if (!table || !Array.isArray(table.rows)) throw new Error('Unexpected sheet structure (or the sheet is restricted).');
+
+            const result = normalise(table);
+            const period = derivePeriod(result.items, table);
+
+            state.all = result.items;
+            el.month.textContent = period.month || '—';
+            el.year.textContent = period.year || '';
+            state.lastSync = new Date();
+            state.loadingFirstLoad = false;
+
+            buildFacets();
+            applyFilters();
+
+            el.loading.hidden = true;
+            hideError();
+            setSyncBadge('ok', 'Live auto-sync on');
+            updateSyncedBadge();
+
+            if (manual) showToast('Synced ' + result.items.length + ' schedule entries.', 'success');
+
+        } catch (err) {
+            if (seq !== requestSeq) return;
+            state.loadingFirstLoad = false;
+            el.loading.hidden = true;
+            console.warn('[schedule] sync failed:', err);
+
+            if (state.all.length) {
+                setSyncBadge('stale', 'Showing last synced data');
+                updateSyncedBadge();
+                if (manual) showToast('Could not reach Google Sheets — showing the last synced data.', 'warn');
+            } else {
+                setSyncBadge('error', 'Offline / sheet unreachable');
+                showError('Could not load the schedule. ' + (err && err.message ? err.message : ''));
+            }
+
+        } finally {
+            if (seq === requestSeq) {
+                state.syncing = false;
+                el.syncBtn.disabled = false;
+                el.syncBtnLabel.textContent = 'Sync Now';
+                el.syncIcon.classList.remove('animate-spin');
+            }
+        }
+    }
+
+    /* =======================================================================
+       11. EVENTS + INIT
+       ===================================================================== */
+    const onSearch = debounce(function () {
+        state.query = (el.searchInput.value || '').toLowerCase().trim();
+        el.clearSearch.hidden = !el.searchInput.value;
+        applyFilters();
+    }, 140);
+
+    el.searchInput.addEventListener('input', onSearch);
+    el.searchInput.addEventListener('search', onSearch);
+
+    el.clearSearch.addEventListener('click', function () {
+        el.searchInput.value = '';
+        state.query = '';
+        el.clearSearch.hidden = true;
+        el.searchInput.focus();
+        applyFilters();
+    });
+
+    el.activitySel.addEventListener('change', function () { state.activity = el.activitySel.value; applyFilters(); });
+    el.categorySel.addEventListener('change', function () { state.category = el.categorySel.value; applyFilters(); });
+    el.assigneeSel.addEventListener('change', function () { state.assignee = el.assigneeSel.value; applyFilters(); });
+
+    el.todayToggle.addEventListener('click', function () {
+        state.todayOnly = !state.todayOnly;
+        el.todayToggle.setAttribute('aria-pressed', state.todayOnly ? 'true' : 'false');
+        el.todayToggle.classList.toggle('bg-brand-600', state.todayOnly);
+        el.todayToggle.classList.toggle('text-white', state.todayOnly);
+        el.todayToggle.classList.toggle('border-brand-600', state.todayOnly);
+        el.todayToggle.classList.toggle('bg-gray-50', !state.todayOnly);
+        el.todayToggle.classList.toggle('dark:bg-gray-900', !state.todayOnly);
+        el.todayToggle.classList.toggle('text-gray-600', !state.todayOnly);
+        applyFilters();
+    });
+
+    el.loadMoreBtn.addEventListener('click', function () {
+        state.limit += CONFIG.PAGE_SIZE;
+        render();
+    });
+
+    el.syncBtn.addEventListener('click', function () { sync(true); });
+    el.retryBtn.addEventListener('click', function () { sync(true); });
+
+    el.themeBtn.addEventListener('click', function () {
+        if (state.tvForcedDark) {
+            showToast('TV mode is locked to dark for readability. Switch to Card or List to change the theme.', 'info');
+            return;
+        }
+        setTheme(!document.documentElement.classList.contains('dark'), true);
+    });
+
+    el.fullscreenBtn.addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+            (document.documentElement.requestFullscreen || function () {}).call(document.documentElement).catch(function () {
+                showToast('Fullscreen was blocked by the browser.', 'warn');
+            });
+        } else if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    });
+
+    // Tabs: click + arrow-key roving focus (WAI-ARIA tablist pattern)
+    $('#view-tabs').addEventListener('click', function (e) {
+        const btn = e.target.closest('.view-btn');
+        if (btn) setView(btn.dataset.view);
+    });
+    $('#view-tabs').addEventListener('keydown', function (e) {
+        const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+        if (keys.indexOf(e.key) === -1) return;
+        e.preventDefault();
+        const tabs = $$('.view-btn');
+        const order = ['card', 'list', 'tv'];
+        let i = order.indexOf(state.view);
+        if (e.key === 'ArrowRight') i = (i + 1) % order.length;
+        else if (e.key === 'ArrowLeft') i = (i - 1 + order.length) % order.length;
+        else if (e.key === 'Home') i = 0;
+        else i = order.length - 1;
+        setView(order[i]);
+        tabs[i].focus();
+    });
+
+    // Follow the OS theme only while the user has not chosen one.
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    (mq.addEventListener ? mq.addEventListener.bind(mq, 'change') : mq.addListener.bind(mq))(function () {
+        if (!state.userTheme && !state.tvForcedDark) setTheme(mq.matches, false);
+    });
+
+    // Re-sync when the tab becomes visible again, and keep the badge fresh.
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+            if (state.lastSync && Date.now() - state.lastSync.getTime() > CONFIG.REFRESH_MS) sync(false);
+            updateSyncedBadge();
+        }
+    });
+    setInterval(function () { if (document.visibilityState === 'visible') sync(false); }, CONFIG.REFRESH_MS);
+    setInterval(updateSyncedBadge, 30000);
+
+    let resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            if (state.view !== 'tv') el.fullscreenBtn.classList.toggle('hidden', window.innerWidth < 640);
+        }, 150);
+    });
+
+    // Ctrl/Cmd+K focuses search.
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (state.view === 'tv') setView('card');
+            el.searchInput.focus();
+            el.searchInput.select();
+        }
+    });
+
+    // Boot
+    setTheme(preferredDark(), false);
+    updateThemeIcons();
+    setView(state.view);
+    sync(false);
+    </script>
+</body>
+</html>

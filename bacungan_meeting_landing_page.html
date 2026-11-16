@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bacungan Meeting Schedules</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #0B2A8F;
+        }
+
+        /* Animated aurora background */
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(60px, -40px) scale(1.15); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes drift-reverse {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(-70px, 50px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .aurora-1 {
+            animation: drift 14s ease-in-out infinite;
+        }
+        .aurora-2 {
+            animation: drift-reverse 18s ease-in-out infinite;
+        }
+
+        /* Blueprint grid pattern */
+        .blueprint-grid {
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 44px 44px;
+            -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+            mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+        }
+
+        /* Shimmering headline */
+        @keyframes shine {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .headline-shine {
+            background: linear-gradient(110deg, #FFFFFF 40%, #BFD4FF 50%, #FFFFFF 60%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 6s linear infinite;
+        }
+
+        /* Gentle float for cards */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        .float-card {
+            animation: float 5s ease-in-out infinite;
+        }
+        .float-delay {
+            animation-delay: 2.5s;
+        }
+
+        /* Custom scrollbar for dropdown list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Smooth dropdown transition */
+        .dropdown-menu {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: top center;
+        }
+
+        /* Fade-up entrance */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up {
+            animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .fade-delay-1 { animation-delay: 0.15s; }
+        .fade-delay-2 { animation-delay: 0.3s; }
+        .fade-delay-3 { animation-delay: 0.45s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .aurora-1, .aurora-2, .headline-shine, .float-card, .fade-up {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white antialiased flex flex-col justify-between relative overflow-x-hidden">
+
+    <main class="relative min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
+
+        <!-- Animated aurora glows -->
+        <div class="aurora-1 absolute -top-48 -left-48 w-[32rem] h-[32rem] bg-blue-400 opacity-30 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="aurora-2 absolute -bottom-48 -right-48 w-[32rem] h-[32rem] bg-cyan-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="aurora-1 absolute top-1/3 right-0 w-96 h-96 bg-indigo-500 opacity-25 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Blueprint grid overlay -->
+        <div class="blueprint-grid absolute inset-0 pointer-events-none"></div>
+
+        <div class="max-w-4xl w-full mx-auto text-center space-y-10 relative z-10">
+
+            <!-- Hero -->
+            <div class="space-y-5 fade-up">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-xs font-bold tracking-widest uppercase text-blue-100">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Bacungan Board
+                </span>
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+                    <span class="headline-shine">Bacungan Meeting Schedules</span>
+                </h1>
+                <p class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-100/90 max-w-3xl mx-auto leading-relaxed">
+                    Centralized digital platform for managing schedules, ministry activities and monthly reporting.
+                </p>
+            </div>
+
+            <!-- Selector -->
+            <div class="pt-4 max-w-2xl mx-auto w-full relative z-30 fade-up fade-delay-1">
+                <div class="relative bg-white/10 backdrop-blur-md p-2 sm:p-3 rounded-2xl border border-white/20 shadow-2xl transition-all duration-300 hover:border-white/40 hover:shadow-blue-900/50">
+
+                    <!-- Trigger & Actions -->
+                    <div class="flex flex-col sm:flex-row items-center gap-2">
+
+                        <!-- Custom Select Container -->
+                        <div class="relative w-full text-left">
+                            <button id="dropdown-btn" type="button" aria-expanded="false" aria-haspopup="listbox"
+                                class="w-full bg-white text-gray-900 font-bold py-3.5 px-4 rounded-xl shadow-inner flex items-center justify-between transition-all duration-200 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-white/40 group">
+                                <span class="flex items-center gap-3 truncate">
+                                    <span class="p-1.5 bg-blue-600 text-white rounded-lg group-hover:scale-105 transition-transform">
+                                        <i data-lucide="calendar" class="w-5 h-5"></i>
+                                    </span>
+                                    <span id="selected-label" class="text-base text-gray-800">Select Meeting Schedule...</span>
+                                </span>
+                                <i data-lucide="chevron-down" id="chevron-icon" class="w-5 h-5 text-gray-500 transition-transform duration-200"></i>
+                            </button>
+
+                            <!-- Dropdown Menu List -->
+                            <div id="dropdown-menu" class="dropdown-menu absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden hidden z-50 opacity-0 scale-95 isolate" role="listbox">
+                                <ul id="menu-list" class="overflow-y-auto custom-scrollbar divide-y divide-gray-50 p-1.5 bg-white">
+                                    <!-- Items injected via JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button id="go-btn" disabled
+                                class="w-full sm:w-auto bg-white/20 text-white/50 font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-not-allowed">
+                                <span>Go to Page</span>
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </button>
+                            <button id="copy-btn" title="Copy Link" aria-label="Copy link" disabled
+                                class="bg-white/10 opacity-40 text-white p-3.5 rounded-xl border border-white/20 transition-all flex items-center justify-center cursor-not-allowed">
+                                <i data-lucide="copy" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Toast Notification Banner -->
+                <div id="toast" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/90 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-md opacity-0 transition-all duration-300 translate-y-2 pointer-events-none">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                    <span id="toast-message">Link copied to clipboard!</span>
+                </div>
+            </div>
+
+            <!-- Quick Access Cards Grid -->
+            <div class="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left relative z-10">
+                <a href="https://sites.google.com/view/bacunganboard/home/meetings/midweek-meeting" target="_blank" rel="noopener noreferrer"
+                   class="float-card group bg-white/10 hover:bg-white/20 border border-white/15 hover:border-blue-300/60 p-5 rounded-2xl transition-all duration-200 backdrop-blur-sm flex flex-col justify-between shadow-lg hover:shadow-blue-900/40 hover:-translate-y-1">
+                    <div>
+                        <div class="flex items-center justify-between text-blue-200 text-xs font-bold tracking-widest uppercase mb-2">
+                            <span class="flex items-center gap-2">
+                                <i data-lucide="calendar-days" class="w-4 h-4"></i>
+                                Midweek
+                            </span>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-xl">Midweek Meeting</h3>
+                    </div>
+                    <span class="mt-4 text-xs text-blue-100/70 truncate font-bold">sites.google.com/view/bacunganboard/...</span>
+                </a>
+
+                <a href="https://sites.google.com/view/bacunganboard/home/meetings/weekend-meeting" target="_blank" rel="noopener noreferrer"
+                   class="float-card float-delay group bg-white/10 hover:bg-white/20 border border-white/15 hover:border-cyan-300/60 p-5 rounded-2xl transition-all duration-200 backdrop-blur-sm flex flex-col justify-between shadow-lg hover:shadow-blue-900/40 hover:-translate-y-1">
+                    <div>
+                        <div class="flex items-center justify-between text-cyan-200 text-xs font-bold tracking-widest uppercase mb-2">
+                            <span class="flex items-center gap-2">
+                                <i data-lucide="sun" class="w-4 h-4"></i>
+                                Weekend
+                            </span>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-xl">Weekend Meeting</h3>
+                    </div>
+                    <span class="mt-4 text-xs text-blue-100/70 truncate font-bold">sites.google.com/view/bacunganboard/...</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Footer watermark -->
+        <div class="text-center text-xs text-blue-200/70 font-bold mt-12 mb-2 relative z-10">
+            Bacungan Board Schedule Navigator &bull; Google Sites Integration
+        </div>
+    </main>
+
+    <script>
+        const meetingsData = [
+            {
+                id: 'midweek',
+                title: 'Midweek Meeting',
+                category: 'Midweek Schedule',
+                icon: 'calendar-days',
+                url: 'https://sites.google.com/view/bacunganboard/home/meetings/midweek-meeting'
+            },
+            {
+                id: 'weekend',
+                title: 'Weekend Meeting',
+                category: 'Weekend Schedule',
+                icon: 'sun',
+                url: 'https://sites.google.com/view/bacunganboard/home/meetings/weekend-meeting'
+            }
+        ];
+
+        let selectedMeeting = null;
+        let toastTimer = null;
+        let closeTimer = null;
+
+        // DOM elements
+        const dropdownBtn = document.getElementById('dropdown-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const menuList = document.getElementById('menu-list');
+        const chevronIcon = document.getElementById('chevron-icon');
+        const selectedLabel = document.getElementById('selected-label');
+        const goBtn = document.getElementById('go-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        function renderItems(items) {
+            menuList.innerHTML = '';
+            if (items.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'p-3 text-center text-xs text-gray-400';
+                li.textContent = 'No matching meetings found';
+                menuList.appendChild(li);
+                return;
+            }
+
+            items.forEach(meeting => {
+                const li = document.createElement('li');
+                li.className = 'p-2.5 hover:bg-blue-50 cursor-pointer rounded-lg transition-colors flex items-center justify-between group';
+                li.setAttribute('role', 'option');
+
+                const left = document.createElement('div');
+                left.className = 'flex items-center gap-3';
+
+                const iconWrap = document.createElement('div');
+                iconWrap.className = 'p-1.5 rounded-lg bg-blue-600 text-white';
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', meeting.icon);
+                icon.className = 'w-4 h-4';
+                iconWrap.appendChild(icon);
+
+                const text = document.createElement('div');
+                const title = document.createElement('div');
+                title.className = 'text-sm font-bold text-gray-800 group-hover:text-blue-700 transition-colors';
+                title.textContent = meeting.title;
+                const category = document.createElement('div');
+                category.className = 'text-[10px] text-gray-400';
+                category.textContent = meeting.category;
+                text.appendChild(title);
+                text.appendChild(category);
+
+                left.appendChild(iconWrap);
+                left.appendChild(text);
+
+                const chevron = document.createElement('i');
+                chevron.setAttribute('data-lucide', 'chevron-right');
+                chevron.className = 'w-4 h-4 text-blue-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all';
+
+                li.appendChild(left);
+                li.appendChild(chevron);
+
+                li.addEventListener('click', () => selectOption(meeting));
+                menuList.appendChild(li);
+            });
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function isDropdownOpen() {
+            return !dropdownMenu.classList.contains('hidden');
+        }
+
+        function toggleDropdown(show) {
+            const shouldShow = show !== undefined ? show : !isDropdownOpen();
+
+            if (shouldShow === isDropdownOpen()) return;
+
+            if (shouldShow) {
+                clearTimeout(closeTimer);
+                dropdownMenu.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    dropdownMenu.classList.remove('opacity-0', 'scale-95');
+                    dropdownMenu.classList.add('opacity-100', 'scale-100');
+                });
+                dropdownBtn.setAttribute('aria-expanded', 'true');
+                chevronIcon.classList.add('rotate-180');
+            } else {
+                dropdownMenu.classList.remove('opacity-100', 'scale-100');
+                dropdownMenu.classList.add('opacity-0', 'scale-95');
+                closeTimer = setTimeout(() => {
+                    dropdownMenu.classList.add('hidden');
+                }, 200);
+                dropdownBtn.setAttribute('aria-expanded', 'false');
+                chevronIcon.classList.remove('rotate-180');
+            }
+        }
+
+        function selectOption(meeting) {
+            selectedMeeting = meeting;
+            selectedLabel.textContent = meeting.title;
+
+            // Enable Action Buttons
+            goBtn.removeAttribute('disabled');
+            goBtn.classList.remove('bg-white/20', 'text-white/50', 'cursor-not-allowed');
+            goBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'text-white', 'cursor-pointer', 'hover:shadow-blue-900/50');
+
+            copyBtn.removeAttribute('disabled');
+            copyBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            copyBtn.classList.add('hover:bg-white/25', 'cursor-pointer');
+
+            toggleDropdown(false);
+        }
+
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+            }, 2500);
+        }
+
+        dropdownBtn.addEventListener('click', () => toggleDropdown());
+
+        document.addEventListener('click', (e) => {
+            if (isDropdownOpen() && !dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                toggleDropdown(false);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isDropdownOpen()) {
+                toggleDropdown(false);
+                dropdownBtn.focus();
+            }
+        });
+
+        goBtn.addEventListener('click', () => {
+            if (selectedMeeting) {
+                window.open(selectedMeeting.url, '_blank', 'noopener');
+            }
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            if (!selectedMeeting) return;
+            try {
+                await navigator.clipboard.writeText(selectedMeeting.url);
+                showToast(`Copied ${selectedMeeting.title} link!`);
+            } catch {
+                // Fallback for browsers/contexts without the async Clipboard API
+                const tempInput = document.createElement('textarea');
+                tempInput.value = selectedMeeting.url;
+                tempInput.style.position = 'fixed';
+                tempInput.style.opacity = '0';
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast(`Copied ${selectedMeeting.title} link!`);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            renderItems(meetingsData);
+        });
+    </script>
+</body>
+</html>

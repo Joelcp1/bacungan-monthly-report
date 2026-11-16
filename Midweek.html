@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="tl" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bacungan Congregation - Iskedyul ng Pulong sa Gitnang Sanlinggo</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PapaParse for Google Sheets CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            treasures: { DEFAULT: '#5c6b73', dark: '#3d484e', light: '#f0f4f6' },
+            ministry: { DEFAULT: '#c28100', dark: '#946200', light: '#fef8ec' },
+            christian: { DEFAULT: '#8b1d24', dark: '#681419', light: '#fdf2f3' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    .dark ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    @media print {
+      body { background: white !important; color: black !important; font-size: 11pt; }
+      .no-print { display: none !important; }
+      .print-page-break { page-break-after: always; }
+      .meeting-card { border: 2px solid #000 !important; box-shadow: none !important; margin-bottom: 2rem !important; }
+      .header-treasures { background-color: #535a60 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .header-ministry { background-color: #b68200 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .header-christian { background-color: #800000 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col font-sans transition-colors duration-200">
+
+  <header class="sticky top-0 z-30 bg-slate-900 text-white shadow-md border-b border-slate-800 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-500 text-slate-900 flex items-center justify-center font-bold text-xl shadow-inner">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight text-white leading-tight" id="headerCongregation">Bacungan Congregation</h1>
+            <p class="text-xs text-amber-400 font-medium">Iskedyul ng Pulong sa Gitnang Sanlinggo</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <div class="hidden md:flex items-center space-x-2 px-3 py-1.5 bg-slate-800 rounded-full border border-slate-700 text-xs">
+            <span class="relative flex h-2.5 w-2.5">
+              <span id="syncPulse" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span id="syncDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span id="syncStatusText" class="text-slate-300 font-medium">Naka-sync</span>
+          </div>
+
+          <button type="button" onclick="fetchSheetData(true)" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 hover:text-amber-300 transition flex items-center space-x-1.5 shadow-sm">
+            <i id="refreshIcon" class="fa-solid fa-rotate"></i>
+            <span class="hidden sm:inline">I-refresh Ngayon</span>
+          </button>
+
+          <button type="button" onclick="window.print()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center space-x-1.5 shadow-sm">
+            <i class="fa-solid fa-print"></i>
+            <span class="hidden sm:inline">I-print / PDF</span>
+          </button>
+
+          <button type="button" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition" title="Toggle Dark/Light Mode">
+            <i id="themeIcon" class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <div class="no-print bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6 transition-colors">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+        <div class="relative flex-grow max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <input type="text" id="searchInput" onkeyup="handleSearchInput(event)" placeholder="Maghanap ng pangalan, pamagat, o talata..."
+            class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:text-slate-100 placeholder-slate-400 transition">
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center space-x-2">
+            <label for="weekFilter" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Linggo:</label>
+            <select id="weekFilter" onchange="onWeekFilterChange()" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:text-slate-100">
+              <option value="ALL">Lahat ng Linggo</option>
+            </select>
+          </div>
+
+          <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+            <button type="button" onclick="setViewMode('cards')" id="btnViewCards" class="px-3 py-1 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 shadow-xs text-amber-600 dark:text-amber-400 transition">
+              <i class="fa-solid fa-table-cells-large mr-1"></i> Card
+            </button>
+            <button type="button" onclick="setViewMode('list')" id="btnViewList" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition">
+              <i class="fa-solid fa-list-ul mr-1"></i> Listahan
+            </button>
+            <button type="button" onclick="setViewMode('my-assignments')" id="btnViewMyAssignments" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition">
+              <i class="fa-solid fa-user-check mr-1"></i> Aking Bahagi
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="resultsSummary" class="mb-4 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center justify-between no-print">
+      <span id="resultsCount">Ipinapakita ang lahat ng iskedyul</span>
+      <span id="lastUpdatedTag" class="italic"></span>
+    </div>
+
+    <div id="myAssignmentsSection" class="hidden mb-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-5 no-print">
+      <h3 class="text-base font-bold text-amber-700 dark:text-amber-400 flex items-center gap-2 mb-2">
+        <i class="fa-solid fa-address-card"></i> Hanapin ang Lahat ng Iyong Bahagi
+      </h3>
+      <p class="text-xs text-slate-600 dark:text-slate-300 mb-3">
+        I-type ang iyong buong pangalan o apelyido upang makita ang lahat ng napag-atangan sa iyo sa mga darating na linggo.
+      </p>
+      <div class="flex gap-2 max-w-lg">
+        <input type="text" id="assignmentSearchInput" onkeyup="if(event.key === 'Enter') searchPersonalAssignments()" placeholder="Halimbawa: Jonathan Reyes o Dagacay"
+          class="flex-grow px-4 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+        <button type="button" onclick="searchPersonalAssignments()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm rounded-lg transition shadow-sm">
+          Tingnan
+        </button>
+      </div>
+    </div>
+
+    <!-- Container for dynamic schedule cards -->
+    <div id="scheduleGrid" class="space-y-8"></div>
+
+    <!-- Empty state container for No Data display -->
+    <div id="emptyState" class="hidden py-16 text-center bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 my-6">
+      <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto text-slate-400 text-2xl mb-3">
+        <i class="fa-solid fa-calendar-xmark"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-700 dark:text-slate-200" id="emptyTitle">No Data</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto" id="emptySubtext">
+        Walang nahanap na data mula sa Google Sheet o sa ginawang paghahanap.
+      </p>
+      <button type="button" onclick="clearSearch()" class="mt-4 px-4 py-2 text-xs font-semibold bg-amber-500 text-slate-950 rounded-lg hover:bg-amber-400 transition">
+        I-reset ang Filter
+      </button>
+    </div>
+
+  </main>
+
+  <footer class="mt-auto bg-slate-900 border-t border-slate-800 text-slate-400 text-xs py-6 no-print">
+    <div class="max-w-7xl mx-auto px-4 text-center sm:flex sm:justify-between sm:text-left items-center space-y-2 sm:space-y-0">
+      <div>
+        <p class="font-semibold text-slate-300">Bacungan Congregation - Schedule system</p>
+        <p class="text-slate-500 text-[11px] mt-0.5">Awtomatikong naka-sync (Kada 5 minuto)</p>
+      </div>
+      <div class="flex items-center justify-center space-x-4 text-slate-400">
+        <button type="button" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-amber-400 transition">
+          <i class="fa-solid fa-arrow-up mr-1"></i> Itaas
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let meetingsData = [];
+    let activeSheetId = "1NTE-fXdxATWEH8if_8eEbXhrLRjprKA_oDDNoFLHHlA";
+    let activeViewMode = "cards";
+    let userPickedWeek = false;
+    let currentFilterWeek = "ALL";
+    let currentSearchQuery = "";
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Try loading offline cache first
+      loadCachedData();
+
+      // 2. Fetch fresh data from Google Sheets
+      fetchSheetData(false);
+
+      // 3. Auto refresh every 5 minutes (300,000 ms)
+      setInterval(() => {
+        fetchSheetData(false);
+      }, 5 * 60 * 1000);
+    });
+
+    function loadCachedData() {
+      try {
+        const cached = localStorage.getItem('bacungan_schedule_cache_v2');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.data && parsed.data.length > 0) {
+            meetingsData = parsed.data;
+            normalizeMeetings(meetingsData);
+            updateSyncStatus('success', 'Naka-cache (Offline)');
+            const lastUpdatedTag = document.getElementById('lastUpdatedTag');
+            if (lastUpdatedTag && parsed.timestamp) {
+              const dt = new Date(parsed.timestamp);
+              lastUpdatedTag.innerText = `Naka-cache: ${dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+            renderApp();
+          }
+        }
+      } catch (e) {
+        console.warn('Error reading offline cache:', e);
+      }
+    }
+
+    async function fetchSheetData(isManualTrigger = false) {
+      updateSyncStatus('loading', 'Kumukuha ng data...');
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+      const exportUrl = `https://docs.google.com/spreadsheets/d/${activeSheetId}/export?format=csv&gid=0`;
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${activeSheetId}/gviz/tq?tqx=out:csv&gid=0`;
+
+      try {
+        let response = await fetch(exportUrl);
+        if (!response.ok) {
+          response = await fetch(gvizUrl);
+        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const csvText = await response.text();
+
+        Papa.parse(csvText, {
+          header: false,
+          skipEmptyLines: true,
+          complete: function(results) {
+            if (results.data && results.data.length > 0) {
+              const parsedMeetings = parseSheetRowsToMeetings(results.data);
+              if (parsedMeetings && parsedMeetings.length > 0) {
+                meetingsData = parsedMeetings;
+
+                // Cache data locally for offline viewing
+                try {
+                  localStorage.setItem('bacungan_schedule_cache_v2', JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    data: parsedMeetings
+                  }));
+                } catch (e) {
+                  console.warn('LocalStorage cache write error:', e);
+                }
+
+                updateSyncStatus('success', 'Naka-sync');
+                if (isManualTrigger) showToast('Matagumpay na na-refresh ang data!');
+              } else {
+                meetingsData = [];
+                updateSyncStatus('empty', 'No Data');
+              }
+            } else {
+              meetingsData = [];
+              updateSyncStatus('empty', 'No Data');
+            }
+            renderApp();
+          },
+          error: function(err) {
+            console.warn('PapaParse Error:', err);
+            if (meetingsData.length === 0) updateSyncStatus('empty', 'No Data');
+            renderApp();
+          }
+        });
+      } catch (error) {
+        console.warn('Fetch error:', error);
+        if (meetingsData.length === 0) updateSyncStatus('empty', 'No Data');
+        renderApp();
+      } finally {
+        if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+      }
+    }
+
+    function updateSyncStatus(type, message) {
+      const dot = document.getElementById('syncDot');
+      const pulse = document.getElementById('syncPulse');
+      const text = document.getElementById('syncStatusText');
+
+      if (!dot || !text) return;
+      if (type === 'loading') {
+        dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500';
+        if (pulse) pulse.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75';
+        text.innerText = message;
+      } else if (type === 'success') {
+        dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500';
+        if (pulse) pulse.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
+        text.innerText = message;
+      } else {
+        dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500';
+        if (pulse) pulse.className = 'hidden';
+        text.innerText = message;
+      }
+      const lastUpdatedTag = document.getElementById('lastUpdatedTag');
+      if (lastUpdatedTag) lastUpdatedTag.innerText = `Huling hango: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+    }
+
+    function parseSheetRowsToMeetings(rows) {
+      let meetings = [];
+      let currentMeeting = null;
+      let prayerCount = 0;
+      let readingRowNext = false;
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i].map(c => (c || '').toString().trim());
+        const rowText = row.join(' ');
+
+        const isCongregationHeader = rowText.includes('Bacungan Congregation') || rowText.includes('Iskedyul ng Pulong');
+        const MONTH_HEADER_RE = /(Enero|January|Pebbrero|February|Marso|March|Abril|April|Mayo|May|Hunyo|June|Hulyo|July|Agosto|August|Setyembre|September|Oktubre|October|Nobyembre|November|Disyembre|December)/i;
+        if (isCongregationHeader || (row[0] && row[0].match(/^\d+$/) && MONTH_HEADER_RE.test(rowText))) {
+          if (currentMeeting && (currentMeeting.date || currentMeeting.chairman || currentMeeting.sections.treasures.length > 0)) {
+            meetings.push(currentMeeting);
+          }
+          currentMeeting = createEmptyMeetingObj(meetings.length + 1);
+          // Ang unang numero sa header row ang tunay na week number ng block (nag-uumpisa ulit sa 1 bawat block)
+          if (row[0] && /^\d+$/.test(row[0])) currentMeeting.weekNumber = row[0];
+          prayerCount = 0;
+          // The congregation header row starts with the week number (e.g. "1,Bacungan...").
+          // Skip the rest of parsing for this row so it is not mistaken for meeting part #N.
+          if (isCongregationHeader) continue;
+        }
+
+        if (!currentMeeting) currentMeeting = createEmptyMeetingObj(1);
+
+        // Lugar (hal. "Main Hall") - kinukuha mula sa sheet, hindi hardcoded
+        if (row[0] !== '00:00') {
+          const hallCell = row.find(c => /\b(Hall|Kingdom)\b/i.test(c));
+          if (hallCell) currentMeeting.hall = hallCell;
+        }
+
+        if (rowText.includes('LINGGUHANG PAGBABASA NG BIBLIYA') || readingRowNext || rowText.includes('JEREMIAS')) {
+          const isLabelRow = rowText.includes('LINGGUHANG PAGBABASA NG BIBLIYA');
+          const isReadingRow = readingRowNext && !isLabelRow;
+          for (let cell of row) {
+            if (cell.match(/^(September|Agosto|Oktubre|Nobyembre|Disyembre|Enero|Pebbrero|Marso|Abril|Mayo|Hunyo|Hulyo)\s+\d+/i) || cell.match(/^[A-Z][a-z]+\s+\d+$/)) {
+              currentMeeting.date = cell;
+            } else if (isReadingRow) {
+              // Aklat/babasahin sa susunod na row pagkatapos ng label (JEREMIAS 31, EZRA 1-2, ...).
+              // Iwasan: petsa, placeholder na nagsisimula sa "(", at "00:00".
+              const isDateCell = cell.match(/^(September|Setyembre|Agosto|August|Oktubre|October|Nobyembre|November|Disyembre|December|Enero|January|Pebbrero|February|Marso|March|Abril|April|Mayo|May|Hunyo|June|Hulyo|July)\s+\d+/i) || cell.match(/^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+$/i);
+              if (/\d/.test(cell) && !cell.startsWith('(') && !cell.includes('00:00') && !isDateCell) {
+                currentMeeting.bibleReading = cell;
+              }
+            } else if (cell.includes('JEREMIAS') || cell.includes('BIBLIYA')) {
+              currentMeeting.bibleReading = cell.replace('LINGGUHANG PAGBABASA NG BIBLIYA', '').trim() || currentMeeting.bibleReading;
+            }
+          }
+          // Susunod na row pagkatapos ng label ay ang gabay sa pagbabasa
+          readingRowNext = isLabelRow;
+        }
+
+        for (let j = 0; j < row.length; j++) {
+          if (row[j].includes('Chairman:')) {
+            for (let k = j + 1; k < row.length; k++) {
+              if (row[k]) { currentMeeting.chairman = row[k]; break; }
+            }
+          }
+          if (row[j].includes('Panalangin:')) {
+            let prayerName = "Chairman";
+            for (let k = j + 1; k < row.length; k++) {
+              if (row[k] && !row[k].includes('Awit')) { prayerName = row[k]; break; }
+            }
+            if (prayerCount === 0) {
+              currentMeeting.prayerOpening = prayerName;
+              prayerCount++;
+            } else {
+              currentMeeting.prayerClosing = prayerName;
+            }
+          }
+        }
+
+        let songMatch = rowText.match(/(?:Awit|Song)\s*(\d{1,3})/i) || rowText.match(/^(\d{1,3})\s+(?:Awit|Song|Panalangin)/i);
+        // Ang mga awit sa sheet ay nakasulat bilang naked na numero sa sariling row
+        // (hal. "00:00","","27") - walang "Awit" na text kaya hindi ito nami-match noon.
+        if (!songMatch && row[0] === '00:00' && row[1] === '' && row[2]) {
+          const songVal = row[2].trim();
+          if (/^\d{1,3}$/.test(songVal) || songVal.includes('Bilang') || songVal.includes('(')) {
+            songMatch = [null, songVal];
+          }
+        }
+        if (songMatch) {
+          const songRaw = songMatch[1].trim();
+          const songNum = songRaw;
+          const songStr = songRaw.includes('Bilang') || songRaw.includes('(') ? `Awit ${songRaw}` : `Awit ${songRaw}`;
+          if (!currentMeeting.openingSong && currentMeeting.sections.treasures.length === 0) {
+            currentMeeting.openingSong = songStr;
+          } else if (!currentMeeting.middleSong && currentMeeting.sections.christian.length === 0) {
+            currentMeeting.middleSong = songStr;
+          } else {
+            currentMeeting.closingSong = songStr;
+          }
+        }
+
+        const itemNumMatch = rowText.match(/^\s*(?:00:00\s*)?(\d{1,2})\s+/);
+        if (itemNumMatch) {
+          const itemNum = parseInt(itemNumMatch[1], 10);
+
+          // Meeting parts are numbered 1 to 15 only
+          if (itemNum >= 1 && itemNum <= 15) {
+            let targetSection = 'treasures';
+            if (itemNum >= 4 && itemNum <= 7) targetSection = 'ministry';
+            if (itemNum >= 8) targetSection = 'christian';
+
+            const isErrorCell = str => /^#(REF!|N\/A|VALUE!|NAME\?|ERROR!|NUM!|DIV\/0!)/i.test((str || '').trim());
+
+            const cleanedCells = row.filter(c => {
+              if (!c) return false;
+              const trimmed = c.trim();
+              if (isErrorCell(trimmed)) return false;
+              if (trimmed.includes('00:00')) return false;
+              if (/^\d{1,2}$/.test(trimmed)) return false;
+              if (/\([^)]*min[s]?\.?\)/i.test(trimmed)) return false;
+              return trimmed.length > 1;
+            });
+
+            let rawTitle = cleanedCells[0] ? cleanedCells[0].replace(/^#(REF!|N\/A|VALUE!|NAME\?|ERROR!)/gi, '').trim() : '';
+            let title = rawTitle;
+
+            let names = cleanedCells.slice(1)
+              .map(n => n.replace(/^#(REF!|N\/A|VALUE!|NAME\?|ERROR!)/gi, '').trim())
+              .filter(n => n && !isErrorCell(n) && !/\([^)]*min[s]?\.?/i.test(n));
+
+            let durationMatch = rowText.match(/\([^)]*min[s]?\.?\)/i);
+            let duration = durationMatch ? durationMatch[0] : '';
+
+            // POST ALL: ipakita lahat kahit placeholder lang ang tema
+            if (true) { // always post rows 1-15 even if theme is "(Pamagat)" or empty
+              let existingItem = currentMeeting.sections[targetSection].find(it => it.id === itemNum);
+              if (existingItem) {
+                if (names.length > 0) existingItem.assignees = names;
+                if (title) existingItem.title = title;
+              } else {
+                currentMeeting.sections[targetSection].push({
+                  id: itemNum,
+                  title: title || `Bahagi ${itemNum}`,
+                  duration: duration,
+                  assignees: names.length > 0 ? names : ['-']
+                });
+              }
+            }
+          }
+        }
+      }
+
+      if (currentMeeting && (currentMeeting.date || currentMeeting.chairman || currentMeeting.sections.treasures.length > 0)) {
+        meetings.push(currentMeeting);
+      }
+
+      // Keep parts in numerical order inside each section + pre-parse dates
+      normalizeMeetings(meetings);
+
+      if (meetings.length === 0 || !meetings[0].date) return [];
+      return meetings;
+    }
+
+    function createEmptyMeetingObj(index) {
+      return {
+        id: `week-${index}`,
+        weekNumber: `${index}`,
+        congregation: "Bacungan Congregation",
+        title: "Iskedyul ng Pulong sa Gitnang Sanlinggo",
+        date: "",
+        bibleReading: "",
+        chairman: "",
+        prayerOpening: "",
+        prayerClosing: "",
+        openingSong: "",
+        middleSong: "",
+        closingSong: "",
+        hall: "Main Hall",
+        sections: { treasures: [], ministry: [], christian: [] }
+      };
+    }
+
+    function renderApp() {
+      populateWeekSelectOptions();
+      renderScheduleGrid();
+    }
+
+    const SHEET_MONTHS = {
+      enero: 0, january: 0, jan: 0,
+      pebbrero: 1, february: 1, feb: 1,
+      marso: 2, march: 2, mar: 2,
+      abril: 3, april: 3, apr: 3,
+      mayo: 4, may: 4,
+      hunyo: 5, june: 5, jun: 5,
+      hulyo: 6, july: 6, jul: 6,
+      agosto: 7, august: 7, aug: 7,
+      setyembre: 8, september: 8, sept: 8, sep: 8,
+      oktubre: 9, october: 9, oct: 9,
+      nobyembre: 10, november: 10, nov: 10,
+      disyembre: 11, december: 11, dec: 11
+    };
+
+    // Convert sheet dates like "September 4", "Oct 16" into a real Date.
+    // Year is inferred: pinili ang taong pinakamalapit sa ngayon (para gumana kahit walang taon sa sheet).
+    function parseMeetingDate(dateStr) {
+      if (!dateStr) return null;
+      const match = dateStr.match(/([A-Za-z]+)\s+(\d{1,2})/);
+      if (!match) return null;
+      const monthIdx = SHEET_MONTHS[match[1].toLowerCase()];
+      if (monthIdx === undefined) return null;
+      const day = parseInt(match[2], 10);
+      const now = new Date();
+      const sixMonthsMs = 183 * 24 * 60 * 60 * 1000;
+      let d = new Date(now.getFullYear(), monthIdx, day);
+      if (now - d > sixMonthsMs) d = new Date(now.getFullYear() + 1, monthIdx, day);
+      else if (d - now > sixMonthsMs) d = new Date(now.getFullYear() - 1, monthIdx, day);
+      return d;
+    }
+
+    function normalizeMeetings(meetings) {
+      meetings.forEach(m => {
+        m.sections.treasures.sort((a, b) => a.id - b.id);
+        m.sections.ministry.sort((a, b) => a.id - b.id);
+        m.sections.christian.sort((a, b) => a.id - b.id);
+        m.dateObj = parseMeetingDate(m.date);
+      });
+    }
+
+    // Ang linggo ng kasalukuyan o susunod na pulong (kung lahat ay nakaraan na, ang pinakahuli)
+    function getRelevantWeekId() {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const dated = meetingsData.filter(m => m.dateObj);
+      if (dated.length === 0) return 'ALL';
+      const upcoming = dated.filter(m => m.dateObj >= now);
+      const target = upcoming.length > 0
+        ? upcoming.reduce((a, b) => (a.dateObj <= b.dateObj ? a : b))
+        : dated.reduce((a, b) => (a.dateObj >= b.dateObj ? a : b));
+      return target.id;
+    }
+
+    function populateWeekSelectOptions() {
+      const select = document.getElementById('weekFilter');
+      if (!select) return;
+      const currentVal = select.value;
+      const relevantId = getRelevantWeekId();
+      select.innerHTML = `<option value="ALL">Lahat ng Linggo (${meetingsData.length})</option>`;
+      meetingsData.forEach((m) => {
+        // POST ALL: isama kahit template row na "Petsa" / walang petsa
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.innerText = `${m.date} — Linggo ${m.weekNumber} ${m.bibleReading ? '('+m.bibleReading+')' : ''}${m.id === relevantId ? ' ★ Ngayong Linggo' : ''}`;
+        select.appendChild(opt);
+      });
+      const hasCurrentVal = [...select.options].some(o => o.value === currentVal);
+      if (!userPickedWeek) {
+        // Auto-select: itakda sa kasalukuyan/susunod na linggo batay sa petsa ngayon
+        if ([...select.options].some(o => o.value === relevantId)) {
+          select.value = relevantId;
+          currentFilterWeek = relevantId;
+        }
+      } else {
+        // Igagalang ang manual na pinili ng user kahit mag-auto-refresh
+        select.value = hasCurrentVal ? currentVal : 'ALL';
+        currentFilterWeek = select.value;
+      }
+    }
+
+    function renderScheduleGrid() {
+      const grid = document.getElementById('scheduleGrid');
+      const emptyState = document.getElementById('emptyState');
+      if (!grid) return;
+      grid.innerHTML = '';
+      let filtered = filterData();
+      const resultsCount = document.getElementById('resultsCount');
+      if (resultsCount) resultsCount.innerText = `Ipinapakita ang ${filtered.length} ng ${meetingsData.length} iskedyul`;
+
+      if (filtered.length === 0) {
+        grid.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+      }
+      grid.classList.remove('hidden');
+      if (emptyState) emptyState.classList.add('hidden');
+      if (activeViewMode === 'list') {
+        grid.className = 'space-y-4';
+      } else {
+        grid.className = 'space-y-8';
+      }
+      let htmlBatch = '';
+      filtered.forEach((meeting) => { htmlBatch += createMeetingCardHtml(meeting); });
+      grid.innerHTML = htmlBatch;
+    }
+
+    function createMeetingCardHtml(m) {
+      const isValidAssignee = (a) => {
+        if (!a) return false;
+        const trimmed = a.trim();
+        return trimmed !== '' && trimmed !== '-' && !/^#(REF!|N\/A|VALUE!|NAME\?|ERROR!)/i.test(trimmed);
+      };
+
+      // Strict filter for removing empty dummy placeholders like "Bahagi 9" with no assigned names
+      // POST ALL: ipakita lahat ng bahagi kahit "(Pamagat)" o walang naka-assign
+      const filterValidParts = (items) => (items || []).filter(item => item && item.id != null);
+
+      const treasures = filterValidParts(m.sections.treasures);
+      const ministry = filterValidParts(m.sections.ministry);
+      const christian = filterValidParts(m.sections.christian);
+
+      const isWeekEmpty = treasures.length === 0 && ministry.length === 0 && christian.length === 0;
+
+      return `
+        <div class="meeting-card bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-200 hover:shadow-lg">
+          <div class="bg-slate-900 text-white p-4 sm:p-5 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+              <span class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-base shadow-sm">${m.weekNumber}</span>
+              <div>
+                <h2 class="text-base font-bold text-white tracking-wide">${m.congregation}</h2>
+                <p class="text-xs text-amber-400 font-semibold tracking-wider uppercase">${m.title}</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <button type="button" onclick="copyMeetingAsText('${m.id}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition flex items-center space-x-1.5 shadow-sm no-print" title="Kopyahin bilang Text para sa Messaging Apps">
+                <i class="fa-solid fa-copy"></i>
+                <span>Kopyahin Text</span>
+              </button>
+              <button type="button" onclick="exportToCalendar('${m.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-xs transition flex items-center space-x-1.5 shadow-sm no-print" title="Mag-add sa Google Calendar o Apple Calendar">
+                <i class="fa-solid fa-calendar-plus"></i>
+                <span>Mag-add sa Calendar</span>
+              </button>
+              ${m.id === getRelevantWeekId() ? `<span class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-sm"><i class="fa-solid fa-location-dot mr-1"></i>Ngayong Linggo</span>` : ''}
+              <span class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-bold"><i class="fa-regular fa-calendar-days text-amber-400 mr-1.5"></i>${highlightText(m.date || 'TBA')}</span>
+              <span class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-amber-300 font-bold"><i class="fa-solid fa-book-open mr-1.5"></i>LINGGUHANG PAGBABASA: ${highlightText(m.bibleReading || 'TBA')}</span>
+            </div>
+          </div>
+          <div class="bg-slate-100 dark:bg-slate-900/80 px-4 sm:px-6 py-3 border-b border-slate-200 dark:border-slate-700/80 text-xs flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-4">
+              <div><span class="text-slate-400 uppercase font-bold text-[10px]">Chairman:</span> <span class="ml-1 font-bold text-slate-800 dark:text-slate-100 ${highlightMatch(m.chairman)}">${m.chairman || '-'}</span></div>
+              <div><span class="text-slate-400 uppercase font-bold text-[10px]">Panalangin:</span> <span class="ml-1 font-bold text-slate-800 dark:text-slate-100 ${highlightMatch(m.prayerOpening)}">${m.prayerOpening || '-'}</span></div>
+            </div>
+            <div class="flex items-center space-x-3 text-slate-500 dark:text-slate-400 font-medium">
+              <span><i class="fa-solid fa-building-user mr-1 text-amber-500"></i>${m.hall || 'Main Hall'}</span>
+              <span>•</span>
+              <span><i class="fa-solid fa-music mr-1 text-slate-400"></i>Pambungad: <strong>${highlightText(m.openingSong || '-')}</strong></span>
+            </div>
+          </div>
+
+          <div class="p-4 sm:p-6 space-y-6">
+            ${isWeekEmpty ? `
+              <div class="p-6 text-center bg-amber-500/10 dark:bg-amber-500/5 rounded-xl border border-dashed border-amber-500/40">
+                <div class="w-12 h-12 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
+                  <i class="fa-solid fa-bullhorn"></i>
+                </div>
+                <h4 class="text-sm font-bold text-amber-700 dark:text-amber-400">Announcement: Walang Data / Inaayos pa ang data</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-md mx-auto">
+                  Ang iskedyul para sa linggong ito ay inihahanda pa o hindi pa napupunan sa Google Sheet.
+                </p>
+              </div>
+            ` : `
+              ${treasures.length > 0 ? `
+                <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xs">
+                  <div class="header-treasures bg-[#535a60] text-white px-4 py-2.5 font-bold text-xs uppercase tracking-wider flex items-center justify-between">
+                    <span class="flex items-center"><i class="fa-solid fa-gem mr-2 text-slate-300"></i> KAYAMANAN MULA SA SALITA NG DIYOS</span>
+                  </div>
+                  <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${treasures.map(item => renderPartRow(item)).join('')}</div>
+                </div>
+              ` : ''}
+
+              ${ministry.length > 0 ? `
+                <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xs">
+                  <div class="header-ministry bg-[#b68200] text-white px-4 py-2.5 font-bold text-xs uppercase tracking-wider flex items-center justify-between">
+                    <span class="flex items-center"><i class="fa-solid fa-bullhorn mr-2 text-amber-200"></i> MAGING MAHUSAY SA MINISTERYO</span>
+                  </div>
+                  <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${ministry.map(item => renderPartRow(item)).join('')}</div>
+                </div>
+              ` : ''}
+
+              ${christian.length > 0 ? `
+                <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xs">
+                  <div class="header-christian bg-[#800000] text-white px-4 py-2.5 font-bold text-xs uppercase tracking-wider flex items-center justify-between">
+                    <div class="flex items-center space-x-2"><i class="fa-solid fa-heart mr-1 text-red-200"></i> <span>PAMUMUHAY BILANG KRISTIANO</span> <span class="bg-red-900/80 text-red-100 px-2 py-0.5 rounded text-[10px] lowercase tracking-normal">(${highlightText(m.middleSong || '-')})</span></div>
+                  </div>
+                  <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${christian.map(item => renderPartRow(item)).join('')}</div>
+                </div>
+              ` : ''}
+            `}
+          </div>
+
+          <div class="bg-slate-50 dark:bg-slate-900/60 px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-slate-700 text-xs flex flex-wrap items-center justify-between gap-2 text-slate-600 dark:text-slate-300">
+            <div class="flex items-center space-x-2"><i class="fa-solid fa-flag-checkered text-amber-500"></i> <span>Pangwakas na Komento (3 min.)</span></div>
+            <div class="flex items-center space-x-4"><span><strong>${highlightText(m.closingSong || '-')}</strong></span><span>•</span><span>Panalangin: <strong class="${highlightMatch(m.prayerClosing)}">${m.prayerClosing || '-'}</strong></span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function exportToCalendar(meetingId) {
+      const m = meetingsData.find(item => item.id === meetingId);
+      if (!m) return;
+      let eventDate = null;
+      if (m.dateObj) {
+        eventDate = new Date(m.dateObj);
+        eventDate.setHours(18, 0, 0, 0);
+      } else if (m.date) {
+        const match = m.date.match(/([A-Za-z]+)\s+(\d+)/i);
+        if (match) {
+          const monthIdx = SHEET_MONTHS[match[1].toLowerCase()];
+          if (monthIdx !== undefined) {
+            const dayNum = parseInt(match[2], 10);
+            const now = new Date();
+            let y = now.getFullYear();
+            const sixMonthsMs = 183 * 24 * 60 * 60 * 1000;
+            let d = new Date(y, monthIdx, dayNum, 18, 0, 0);
+            if (now - d > sixMonthsMs) d = new Date(y + 1, monthIdx, dayNum, 18, 0, 0);
+            else if (d - now > sixMonthsMs) d = new Date(y - 1, monthIdx, dayNum, 18, 0, 0);
+            eventDate = d;
+          }
+        }
+      }
+      if (!eventDate || isNaN(eventDate)) eventDate = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const formatLocalForICS = dt => `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}${pad(dt.getSeconds())}`;
+      const endDate = new Date(eventDate.getTime() + (105 * 60 * 1000));
+      const escapeICS = s => (s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+      let descriptionParts = [
+        `Pulong sa Gitnang Sanlinggo - ${m.congregation}`,
+        `Petsa: ${m.date || 'TBA'}`,
+        `Pagbabasa: ${m.bibleReading || 'TBA'}`,
+        `Chairman: ${m.chairman || '-'}`,
+        `Panalangin: ${m.prayerOpening || '-'}`
+      ];
+      const icsData = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Bacungan Congregation//Schedule System//TL',
+        'BEGIN:VEVENT',
+        `SUMMARY:${escapeICS(`Pulong sa Gitnang Sanlinggo - ${m.congregation}`)}`,
+        `DESCRIPTION:${escapeICS(descriptionParts.join('\\n'))}`,
+        `DTSTART:${formatLocalForICS(eventDate)}`,
+        `DTEND:${formatLocalForICS(endDate)}`,
+        'LOCATION:Kingdom Hall - Bacungan Congregation',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `Bacungan_Iskedyul_Linggo_${m.weekNumber}.ics`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(()=> URL.revokeObjectURL(link.href), 1000);
+      showToast('Nai-download na ang Calendar (.ics) file!');
+    }
+
+    function renderPartRow(item) {
+      const isHighlighted = isItemHighlighted(item);
+      const rowBg = isHighlighted ? 'bg-amber-100/70 dark:bg-amber-900/30' : 'hover:bg-slate-100/80 dark:hover:bg-slate-700/30';
+
+      return `
+        <div class="p-3 ${rowBg} transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start space-x-3 flex-grow pr-2">
+            <span class="font-black text-slate-900 dark:text-slate-100 w-5 flex-shrink-0 text-right text-sm">${item.id}</span>
+            <div>
+              <span class="font-bold text-slate-800 dark:text-slate-200 leading-tight block sm:inline">${highlightText(item.title)}</span>
+              ${item.duration ? `<span class="mt-1 sm:mt-0 sm:ml-1.5 text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">(${item.duration.replace(/[()]/g, '')})</span>` : ''}
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 sm:justify-end flex-shrink-0 font-bold text-slate-900 dark:text-slate-100 pl-8 sm:pl-0 w-full sm:w-auto">
+            ${renderAssignees(item.assignees)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAssignees(assignees) {
+      const validAssignees = (assignees || []).filter(a =>
+        a &&
+        a.trim() !== '-' &&
+        !/^#(REF!|N\/A|VALUE!|NAME\?|ERROR!)/i.test(a.trim()) &&
+        !/\([^)]*min[s]?\.?/i.test(a)
+      );
+
+      if (validAssignees.length === 0) {
+        return `<span class="text-slate-400 dark:text-slate-500 font-normal italic text-xs">-</span>`;
+      }
+
+      if (validAssignees.length === 1) {
+        return `<span class="${highlightMatch(validAssignees[0])} bg-slate-100 dark:bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-xs text-center w-full sm:w-auto inline-block">${highlightText(validAssignees[0])}</span>`;
+      }
+
+      return `
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 w-full sm:w-auto">
+          <span class="${highlightMatch(validAssignees[0])} bg-slate-100 dark:bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-xs text-center flex-1 sm:flex-none">${highlightText(validAssignees[0])}</span>
+          <span class="hidden sm:inline text-slate-400 font-normal text-[10px]">/</span>
+          <span class="${highlightMatch(validAssignees[1])} bg-slate-100 dark:bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-xs text-center flex-1 sm:flex-none opacity-90">${highlightText(validAssignees[1])}</span>
+        </div>
+      `;
+    }
+
+    function isItemHighlighted(item) {
+      if (!currentSearchQuery) return false;
+      const q = currentSearchQuery.toLowerCase();
+      if (item.title && item.title.toLowerCase().includes(q)) return true;
+      if (item.assignees && item.assignees.some(a => a && a.toLowerCase().includes(q))) return true;
+      return false;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return str;
+      return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function highlightMatch(nameStr) {
+      if (!nameStr || !currentSearchQuery) return '';
+      return nameStr.toLowerCase().includes(currentSearchQuery.toLowerCase()) ? '!bg-amber-300 dark:!bg-amber-500 !text-slate-900 ring-2 ring-amber-500 rounded search-highlight shadow-sm' : '';
+    }
+
+    function highlightText(text) {
+      if (text == null) return text;
+      const escaped = escapeHtml(text);
+      if (!currentSearchQuery) return escaped;
+      const q = currentSearchQuery.trim();
+      if (!q) return escaped;
+      const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp('(' + escapedQuery + ')', 'gi');
+      if (!escaped.match(regex)) return escaped;
+      return escaped.replace(regex, '<span class="bg-amber-300 dark:bg-amber-500 text-slate-900 px-1 rounded shadow-sm search-highlight transition-all">$1</span>');
+    }
+
+    let searchDebounceTimeout;
+
+    function handleSearchInput(e) {
+      filterSchedules();
+      if (currentSearchQuery.length > 0) {
+        if (e && e.key === 'Enter') {
+          clearTimeout(searchDebounceTimeout);
+          scrollToFirstMatch();
+        } else {
+          clearTimeout(searchDebounceTimeout);
+          searchDebounceTimeout = setTimeout(scrollToFirstMatch, 800);
+        }
+      }
+    }
+
+    function scrollToFirstMatch() {
+      if (!currentSearchQuery) return;
+      setTimeout(() => {
+        const firstMatch = document.querySelector('.search-highlight');
+        if (firstMatch) {
+          const headerOffset = 100;
+          const elementPosition = firstMatch.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+      }, 50);
+    }
+
+    function onWeekFilterChange() {
+      userPickedWeek = true;
+      filterSchedules();
+    }
+
+    function filterSchedules() {
+      const searchInput = document.getElementById('searchInput');
+      const weekFilter = document.getElementById('weekFilter');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      currentSearchQuery = searchInput ? searchInput.value.trim() : '';
+      currentFilterWeek = weekFilter ? weekFilter.value : 'ALL';
+      if (clearBtn) currentSearchQuery.length > 0 ? clearBtn.classList.remove('hidden') : clearBtn.classList.add('hidden');
+      renderScheduleGrid();
+    }
+
+    function filterData() {
+      return meetingsData.filter(m => {
+        if (currentFilterWeek !== 'ALL' && m.id !== currentFilterWeek) return false;
+        if (currentSearchQuery.length > 0) {
+          const q = currentSearchQuery.toLowerCase();
+          const matchHeader = (m.congregation && m.congregation.toLowerCase().includes(q)) || (m.date && m.date.toLowerCase().includes(q)) || (m.bibleReading && m.bibleReading.toLowerCase().includes(q)) || (m.chairman && m.chairman.toLowerCase().includes(q)) || (m.prayerOpening && m.prayerOpening.toLowerCase().includes(q)) || (m.prayerClosing && m.prayerClosing.toLowerCase().includes(q)) || (m.openingSong && m.openingSong.toLowerCase().includes(q)) || (m.middleSong && m.middleSong.toLowerCase().includes(q)) || (m.closingSong && m.closingSong.toLowerCase().includes(q));
+          if (matchHeader) return true;
+          let matchParts = false;
+          Object.values(m.sections).forEach(sec => { sec.forEach(item => { if (item.title && item.title.toLowerCase().includes(q)) matchParts = true; if (item.assignees && item.assignees.some(a => a && a.toLowerCase().includes(q))) matchParts = true; }); });
+          return matchParts;
+        }
+        return true;
+      });
+    }
+
+    function clearSearch() {
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.value = '';
+      userPickedWeek = false; // bumalik sa auto-select ng kasalukuyang linggo
+      populateWeekSelectOptions();
+      filterSchedules();
+    }
+
+    function searchPersonalAssignments() {
+      const personalInput = document.getElementById('assignmentSearchInput');
+      if (personalInput && personalInput.value.trim()) {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.value = personalInput.value.trim();
+        filterSchedules();
+        setTimeout(scrollToFirstMatch, 100);
+      }
+    }
+
+    async function copyMeetingAsText(meetingId) {
+      const m = meetingsData.find(item => item.id === meetingId);
+      if (!m) return;
+      let text = `📌 *${m.congregation}*\n`;
+      text += `📋 *${m.title}* - Linggo ${m.weekNumber} (${m.date || 'TBA'})\n`;
+      if (m.bibleReading) text += `📖 *Pagbabasa:* ${m.bibleReading}\n`;
+      text += `👤 *Chairman:* ${m.chairman || '-'}\n`;
+      text += `🙏 *Pambungad na Panalangin:* ${m.prayerOpening || '-'}\n`;
+      if (m.openingSong) text += `🎵 *Pambungad na Awit:* ${m.openingSong}\n\n`;
+      const filterValidParts = (items) => (items || []).filter(item =>
+        item && item.title &&
+        (!/^Bahagi\s*\d*$/i.test(item.title) || (item.assignees && item.assignees.some(a => a && a !== '-')))
+      );
+      const treasures = filterValidParts(m.sections.treasures);
+      const ministry = filterValidParts(m.sections.ministry);
+      const christian = filterValidParts(m.sections.christian);
+      if (treasures.length > 0) {
+        text += `💎 *KAYAMANAN MULA SA SALITA NG DIYOS*\n`;
+        treasures.forEach(it => {
+          text += `• ${it.id}. ${it.title} ${it.duration ? '(' + it.duration.replace(/[()]/g, '') + ')' : ''}: ${it.assignees.join(' / ')}\n`;
+        });
+        text += `\n`;
+      }
+      if (ministry.length > 0) {
+        text += `📣 *MAGING MAHUSAY SA MINISTERYO*\n`;
+        ministry.forEach(it => {
+          text += `• ${it.id}. ${it.title} ${it.duration ? '(' + it.duration.replace(/[()]/g, '') + ')' : ''}: ${it.assignees.join(' / ')}\n`;
+        });
+        text += `\n`;
+      }
+      if (christian.length > 0) {
+        text += `❤️ *PAMUMUHAY BILANG KRISTIANO* (Awit: ${m.middleSong || '-'})\n`;
+        christian.forEach(it => {
+          text += `• ${it.id}. ${it.title} ${it.duration ? '(' + it.duration.replace(/[()]/g, '') + ')' : ''}: ${it.assignees.join(' / ')}\n`;
+        });
+        text += `\n`;
+      }
+      if (treasures.length === 0 && ministry.length === 0 && christian.length === 0) {
+        text += `⚠️ *Announcement: Walang Data / Inaayos pa ang data*\n\n`;
+      }
+      text += `🎵 *Pangwakas na Awit:* ${m.closingSong || '-'}\n`;
+      text += `🙏 *Pangwakas na Panalangin:* ${m.prayerClosing || '-'}\n`;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          throw new Error('clipboard unavailable');
+        }
+        showToast('Nai-kopya na ang iskedyul bilang text!');
+      } catch (err) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Nai-kopya na ang iskedyul bilang text!');
+        } catch (err2) {
+          console.error('Copy failed:', err2);
+          showToast('Hindi makopya - pakikopya nang mano-mano');
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function setViewMode(mode) {
+      activeViewMode = mode;
+      const btnCards = document.getElementById('btnViewCards');
+      const btnList = document.getElementById('btnViewList');
+      const btnMyAssign = document.getElementById('btnViewMyAssignments');
+      const mySection = document.getElementById('myAssignmentsSection');
+      [btnCards, btnList, btnMyAssign].forEach(btn => { if (btn) btn.className = "px-3 py-1 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition"; });
+
+      if (mode === 'cards' || mode === 'list') {
+        if (mode === 'cards' && btnCards) btnCards.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 shadow-xs text-amber-600 dark:text-amber-400 transition";
+        if (mode === 'list' && btnList) btnList.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 shadow-xs text-amber-600 dark:text-amber-400 transition";
+        if (mySection) mySection.classList.add('hidden');
+      } else if (mode === 'my-assignments') {
+        if (btnMyAssign) btnMyAssign.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 shadow-xs text-amber-600 dark:text-amber-400 transition";
+        if (mySection) mySection.classList.remove('hidden');
+      }
+      renderScheduleGrid();
+    }
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      const isDark = html.classList.contains('dark');
+      if (isDark) { html.classList.remove('dark'); try{localStorage.setItem('bacungan_theme','light');}catch(e){} if (themeIcon) themeIcon.className = "fa-solid fa-moon"; }
+      else { html.classList.add('dark'); try{localStorage.setItem('bacungan_theme','dark');}catch(e){} if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-400"; }
+    }
+    (function(){ try{ const saved = localStorage.getItem('bacungan_theme'); if(saved==='dark'){document.documentElement.classList.add('dark');} else if(saved==='light'){document.documentElement.classList.remove('dark');} else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');}}catch(e){} })();
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-xs font-semibold flex items-center space-x-2 transition-all';
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-base"></i> <span>${message}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bacungan Congregation Information System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #0B2A8F;
+            color: #ffffff;
+        }
+
+        /* Animated aurora background */
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(60px, -40px) scale(1.15); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes drift-reverse {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(-70px, 50px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .aurora-1 { animation: drift 14s ease-in-out infinite; }
+        .aurora-2 { animation: drift-reverse 18s ease-in-out infinite; }
+
+        /* Blueprint grid overlay with radial fade */
+        .blueprint-grid {
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 44px 44px;
+            -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+            mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+        }
+
+        /* Shimmering headline */
+        @keyframes shine {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .headline-shine {
+            background: linear-gradient(110deg, #FFFFFF 40%, #BFD4FF 50%, #FFFFFF 60%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 6s linear infinite;
+        }
+
+        /* Fade-up entrance */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .fade-delay-1 { animation-delay: 0.15s; }
+        .fade-delay-2 { animation-delay: 0.3s; }
+        .fade-delay-3 { animation-delay: 0.45s; }
+
+        /* Gentle float for portal cards */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        .float-card { animation: float 5s ease-in-out infinite; }
+        .float-delay { animation-delay: 2.5s; }
+
+        /* Card shine sweep on hover */
+        .card-shine { position: relative; overflow: hidden; }
+        .card-shine::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -80%;
+            width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.7s ease;
+            pointer-events: none;
+        }
+        .card-shine:hover::after { left: 130%; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .aurora-1, .aurora-2, .headline-shine, .float-card, .fade-up {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <main class="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4 py-12">
+        <!-- Animated aurora glows -->
+        <div class="aurora-1 absolute -top-48 -left-48 w-[32rem] h-[32rem] bg-blue-400 opacity-30 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="aurora-2 absolute -bottom-48 -right-48 w-[32rem] h-[32rem] bg-cyan-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="aurora-1 absolute top-1/3 right-0 w-96 h-96 bg-indigo-500 opacity-25 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Blueprint grid overlay -->
+        <div class="blueprint-grid absolute inset-0 pointer-events-none"></div>
+
+        <div class="max-w-4xl w-full text-center flex flex-col items-center justify-center space-y-10 relative z-10">
+
+            <!-- Hero -->
+            <div class="space-y-5 fade-up">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-xs font-bold tracking-widest uppercase text-blue-100">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Official Portal
+                </span>
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.1] max-w-3xl">
+                    <span class="headline-shine">Bacungan Congregation Information System</span>
+                </h1>
+                <p class="text-lg sm:text-xl font-bold text-blue-100/90 max-w-2xl px-2 leading-relaxed">
+                    Centralized digital platform for managing schedules, ministry activities and monthly reporting.
+                </p>
+            </div>
+
+            <!-- Portal Cards -->
+            <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left w-full max-w-2xl relative z-30">
+
+                <!-- Card 1: Field Service Report -->
+                <a href="https://sites.google.com/view/bacunganboard/home/field-service-report"
+                   target="_blank" rel="noopener noreferrer"
+                   class="float-card card-shine group bg-white/10 hover:bg-white/20 border border-white/15 hover:border-blue-300/60 p-6 rounded-2xl transition-all duration-200 backdrop-blur-sm flex flex-col justify-between shadow-lg hover:shadow-blue-900/40 hover:-translate-y-1 fade-up fade-delay-1">
+                    <div>
+                        <div class="flex items-center justify-between text-blue-200 text-xs font-bold tracking-widest uppercase mb-3">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-clipboard-list"></i>
+                                Reporting
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-xl mb-1.5">Field Service Report</h3>
+                        <p class="text-sm text-blue-100/80 font-bold">Submit monthly service records</p>
+                    </div>
+                    <span class="mt-5 inline-flex items-center gap-2 text-xs font-bold text-blue-200 group-hover:text-white transition-colors">
+                        Open Portal
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                </a>
+
+                <!-- Card 2: Field Ministry -->
+                <a href="https://sites.google.com/view/bacunganboard/home/field-ministry"
+                   target="_blank" rel="noopener noreferrer"
+                   class="float-card float-delay card-shine group bg-white/10 hover:bg-white/20 border border-white/15 hover:border-cyan-300/60 p-6 rounded-2xl transition-all duration-200 backdrop-blur-sm flex flex-col justify-between shadow-lg hover:shadow-blue-900/40 hover:-translate-y-1 fade-up fade-delay-2">
+                    <div>
+                        <div class="flex items-center justify-between text-cyan-200 text-xs font-bold tracking-widest uppercase mb-3">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                                Ministry
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-xl mb-1.5">Field Ministry</h3>
+                        <p class="text-sm text-blue-100/80 font-bold">Schedules &amp; group locations</p>
+                    </div>
+                    <span class="mt-5 inline-flex items-center gap-2 text-xs font-bold text-cyan-200 group-hover:text-white transition-colors">
+                        Open Portal
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Quick meetings link -->
+            <div class="fade-up fade-delay-3 relative z-10">
+                <a href="https://sites.google.com/view/bacunganboard/home/meetings"
+                   target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white font-bold text-base border border-white/30 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group">
+                    <i class="fa-solid fa-calendar-days text-blue-200 group-hover:rotate-12 transition-transform duration-300"></i>
+                    View Meeting Schedules
+                    <i class="fa-solid fa-chevron-right text-xs text-blue-200 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Footer watermark -->
+        <div class="text-center text-xs text-blue-200/70 font-bold mt-12 mb-2 relative z-10">
+            Bacungan Board &bull; Congregation Information System
+        </div>
+    </main>
+
+</body>
+</html>
