@@ -1,259 +1,459 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bacungan Congregation - Main Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Bacungan Board - Information System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:300,400,700&display=swap" rel="stylesheet">
     <style>
-        @keyframes drift {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(60px, -40px) scale(1.15); }
-            100% { transform: translate(0, 0) scale(1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: smooth;
         }
-        @keyframes drift-reverse {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(-70px, 50px) scale(1.1); }
-            100% { transform: translate(0, 0) scale(1); }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #ffffff;
+            color: #212121;
+            line-height: 1.6667;
         }
-        .aurora-1 { animation: drift 14s ease-in-out infinite; }
-        .aurora-2 { animation: drift-reverse 18s ease-in-out infinite; }
-        .blueprint-grid {
-            background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 44px 44px;
-            -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
-            mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+
+        /* Header / Site Header */
+        .site-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        @keyframes shine {
-            0%   { background-position: -200% center; }
-            100% { background-position: 200% center; }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .headline-shine {
-            background: linear-gradient(110deg, #FFFFFF 40%, #BFD4FF 50%, #FFFFFF 60%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: shine 6s linear infinite;
+
+        .site-title {
+            font-family: 'Lato', sans-serif;
+            font-size: 19pt;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #ffffff;
+            padding: 11.5px 48px 62.5px 36px;
+            line-height: 1.3;
+            background-color: #226e93;
+            margin: 0;
+            display: inline-block;
         }
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(18px); }
-            to   { opacity: 1; transform: translateY(0); }
+
+        .site-title span {
+            font-weight: 400;
         }
-        .fade-up { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .fade-delay-1 { animation-delay: 0.15s; }
-        .fade-delay-2 { animation-delay: 0.3s; }
-        .fade-delay-3 { animation-delay: 0.45s; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-6px); }
+
+        /* Navigation */
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
-        .float-card { animation: float 5s ease-in-out infinite; }
-        .float-delay { animation-delay: 2.5s; }
-        .card-shine { position: relative; overflow: hidden; }
-        .card-shine::after {
-            content: '';
-            position: absolute; top: 0; left: -80%;
-            width: 50%; height: 100%;
-            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.7s ease;
-            pointer-events: none;
+
+        .nav-link {
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            color: #212121;
+            text-decoration: none;
+            padding: 10px 16px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .card-shine:hover::after { left: 130%; }
-        .dark {
-            --bg-body: #0f172a;
-            --text-main: #f8fafc;
+
+        .nav-link:hover {
+            background-color: #f2f2f2;
+            border-color: #e0e0e0;
         }
-        @media (prefers-reduced-motion: reduce) {
-            .aurora-1, .aurora-2, .headline-shine, .float-card, .fade-up { animation: none !important; }
+
+        .nav-link.active {
+            color: #226e93;
+            border-bottom: 2px solid #226e93;
+            font-weight: 400;
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-link {
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            color: #212121;
+            text-decoration: none;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dropdown-link:hover {
+            background-color: #f2f2f2;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu a {
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            color: #212121;
+            text-decoration: none;
+            padding: 10px 16px;
+            display: block;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f2f2f2;
+        }
+
+        /* Mobile menu toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #212121;
+        }
+
+        /* Hero Section */
+        .hero {
+            background-color: #226e93;
+            color: #ffffff;
+            padding: 60px 24px;
+            text-align: left;
+        }
+
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-subtitle {
+            font-size: 11pt;
+            font-weight: 400;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        .hero h1 {
+            font-size: 45pt;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+            margin-bottom: 15px;
+            max-width: 800px;
+        }
+
+        .hero p {
+            font-size: 27pt;
+            font-weight: 400;
+            color: #ffffff;
+            line-height: 1.35;
+            margin-bottom: 24px;
+            max-width: 700px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background-color: #ffffff;
+            border: 1px solid #ffffff;
+            color: #226e93;
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background-color: #f2f2f2;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #226e93;
+            color: #226e93;
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(34,110,147,0.1);
+        }
+
+        /* Content Section */
+        .content-section {
+            padding: 60px 24px;
+            background-color: #ffffff;
+        }
+
+        .content-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 34pt;
+            font-weight: 300;
+            color: #226e93;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 32px;
+            transition: all 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            border-color: #226e93;
+            box-shadow: 0 4px 12px rgba(34,110,147,0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 19pt;
+            font-weight: 400;
+            color: #226e93;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .card p {
+            font-size: 15pt;
+            color: #212121;
+            line-height: 1.25;
+            margin-bottom: 16px;
+        }
+
+        .card-link {
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            color: #226e93;
+            text-decoration: none;
+            font-weight: 400;
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .card-link:hover {
+            gap: 10px;
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        .site-footer {
+            background-color: #f2f2f2;
+            color: #212121;
+            padding: 24px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 11pt;
+            text-align: center;
+        }
+
+        .site-footer a {
+            color: #226e93;
+            text-decoration: none;
+        }
+
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 30pt; }
+            .hero p { font-size: 20pt; }
+            .section-title { font-size: 26pt; }
+            .nav-menu { display: none; }
+            .mobile-toggle { display: block; }
+        }
+
+        @media (max-width: 479px) {
+            .hero h1 { font-size: 24pt; }
+            .hero p { font-size: 18pt; }
+            .hero { padding: 40px 16px; }
+            .content-section { padding: 40px 16px; }
+        }
+
+        /* Print */
+        @media print {
+            .site-header { border-bottom: 2px solid #000; }
+            .btn-primary, .btn-outline { display: none; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col text-slate-100 antialiased">
+<body>
 
-<!-- Shared Navigation -->
-<nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-sm border-b border-slate-700">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <div class="flex-shrink-0 flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-book-open"></i>
+<!-- Site Header -->
+<header class="site-header">
+    <div class="header-inner">
+        <h1 class="site-title">
+            Bacungan <span>Congregation</span> Information System
+        </h1>
+
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link active">Home</a>
+            <a href="monthly_report.html" class="nav-link">Field Service Report</a>
+            <a href="meeting_service.html" class="nav-link">Field Ministry</a>
+            <div class="dropdown">
+                <div class="dropdown-link">Meetings ▾</div>
+                <div class="dropdown-menu">
+                    <a href="bacungan_meeting_landing_page.html">Meetings</a>
+                    <a href="Midweek.html">Midweek Meeting</a>
+                    <a href="Weekend_Meeting.html">Weekend Meeting</a>
                 </div>
-                <span class="font-bold text-xl tracking-tight text-white">Bacungan <span class="text-blue-400">Congregation</span></span>
             </div>
-            <div class="hidden md:flex items-center space-x-1">
-                <a href="index.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-house w-4 h-4"></i> <span class="hidden sm:inline">Main Page</span>
-                </a>
-                <a href="monthly_report.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> <span class="hidden sm:inline">Monthly Report</span>
-                </a>
-                <a href="meeting_service.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> <span class="hidden sm:inline">Meeting Service</span>
-                </a>
-                <a href="bacungan_meeting_landing_page.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-users w-4 h-4"></i> <span class="hidden sm:inline">Meeting Landing</span>
-                </a>
-                <a href="Midweek.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-calendar w-4 h-4"></i> <span class="hidden sm:inline">Midweek</span>
-                </a>
-                <a href="Weekend_Meeting.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-sun w-4 h-4"></i> <span class="hidden sm:inline">Weekend</span>
-                </a>
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="theme-toggle" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-t border-slate-700 pb-4">
-            <div class="px-4 space-y-2">
-                <a href="index.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-house w-4 h-4"></i> Main Page</a>
-                <a href="monthly_report.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-clipboard-check w-4 h-4"></i> Monthly Report</a>
-                <a href="meeting_service.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-days w-4 h-4"></i> Meeting Service</a>
-                <a href="bacungan_meeting_landing_page.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-users w-4 h-4"></i> Meeting Landing Page</a>
-                <a href="Midweek.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar w-4 h-4"></i> Midweek Meeting</a>
-                <a href="Weekend_Meeting.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-sun w-4 h-4"></i> Weekend Meeting</a>
-            </div>
+        </nav>
+
+        <button class="mobile-toggle" onclick="toggleMobileMenu()">☰</button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu" style="display: none;">
+        <a href="index.html" class="mobile-link">Home</a>
+        <a href="monthly_report.html" class="mobile-link">Field Service Report</a>
+        <a href="meeting_service.html" class="mobile-link">Field Ministry</a>
+        <a href="bacungan_meeting_landing_page.html" class="mobile-link">Meetings</a>
+        <a href="Midweek.html" class="mobile-link">Midweek Meeting</a>
+        <a href="Weekend_Meeting.html" class="mobile-link">Weekend Meeting</a>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-inner">
+        <span class="hero-subtitle">Official Portal</span>
+        <h1>Bacungan Congregation Information System</h1>
+        <p>Centralized digital platform for managing schedules, ministry activities and monthly reporting.</p>
+        <div class="hero-buttons">
+            <a href="monthly_report.html" class="btn-primary">Monthly Report</a>
+            <a href="meeting_service.html" class="btn-outline">Field Ministry</a>
+            <a href="bacungan_meeting_landing_page.html" class="btn-outline">Meeting Schedules</a>
         </div>
     </div>
-</nav>
+</section>
 
-<main class="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4 py-12 flex-grow">
-    <!-- Animated aurora glows -->
-    <div class="aurora-1 absolute -top-48 -left-48 w-[32rem] h-[32rem] bg-blue-400 opacity-30 rounded-full blur-3xl pointer-events-none z-0"></div>
-    <div class="aurora-2 absolute -bottom-48 -right-48 w-[32rem] h-[32rem] bg-cyan-400 opacity-20 rounded-full blur-3xl pointer-events-none z-0"></div>
-    <div class="aurora-1 absolute top-1/3 right-0 w-96 h-96 bg-indigo-500 opacity-25 rounded-full blur-3xl pointer-events-none z-0"></div>
-
-    <!-- Blueprint grid overlay -->
-    <div class="blueprint-grid absolute inset-0 pointer-events-none z-0"></div>
-
-    <div class="max-w-4xl w-full text-center flex flex-col items-center justify-center space-y-10 relative z-10">
-        <!-- Hero -->
-        <div class="space-y-5 fade-up">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-xs font-bold tracking-widest uppercase text-blue-100">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Official Portal
-            </span>
-            <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.1] max-w-3xl">
-                <span class="headline-shine">Bacungan Congregation Information System</span>
-            </h1>
-            <p class="text-lg sm:text-xl font-bold text-blue-100/90 max-w-2xl px-2 leading-relaxed">
-                Centralized digital platform for managing schedules, ministry activities and monthly reporting.
-            </p>
-        </div>
-
-        <!-- Portal Cards -->
-        <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left w-full max-w-2xl relative z-30">
-            <!-- Card 1: Field Service Report -->
-            <a href="monthly_report.html" class="float-card card-shine group bg-white/10 hover:bg-white/20 border border-white/15 hover:border-blue-300/60 p-6 rounded-2xl transition-all duration-200 backdrop-blur-sm flex flex-col justify-between shadow-lg hover:shadow-blue-900/40 hover:-translate-y-1 fade-up fade-delay-1">
-                <div>
-                    <div class="flex items-center justify-between text-blue-200 text-xs font-bold tracking-widest uppercase mb-3">
-                        <span class="flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-list"></i>
-                            Reporting
-                        </span>
-                        <i class="fa-solid fa-arrow-up-right-from-square w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-xl mb-1.5">Monthly Field Service Report</h3>
-                    <p class="text-sm text-blue-100/80 font-bold">Submit monthly service records</p>
-                </div>
-                <span class="mt-5 inline-flex items-center gap-2 text-xs font-bold text-blue-200 group-hover:text-white transition-colors">
-                    Open Portal
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </span>
+<!-- Content Section -->
+<section class="content-section">
+    <div class="content-inner">
+        <h2 class="section-title">Portal</h2>
+        <div class="cards-grid">
+            <a href="monthly_report.html" class="card">
+                <div class="card-icon">📋</div>
+                <h3>Monthly Field Service Report</h3>
+                <p>Submit monthly service activity using the interactive form.</p>
+                <span class="card-link">Open Report Portal &rarr;</span>
             </a>
-            <!-- Card 2: Field Ministry -->
-            <a href="meeting_service.html" class="float-card float-delay card-shine group bg-white/10 hover:bg-white/20 border border-white/15 hover:border-cyan-300/60 p-6 rounded-2xl transition-all duration-200 backdrop-blur-sm flex flex-col justify-between shadow-lg hover:shadow-blue-900/40 hover:-translate-y-1 fade-up fade-delay-2">
-                <div>
-                    <div class="flex items-center justify-between text-cyan-200 text-xs font-bold tracking-widest uppercase mb-3">
-                        <span class="flex items-center gap-2">
-                            <i class="fa-solid fa-map-location-dot"></i>
-                            Ministry
-                        </span>
-                        <i class="fa-solid fa-arrow-up-right-from-square w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-xl mb-1.5">Field Ministry Schedule</h3>
-                    <p class="text-sm text-blue-100/80 font-bold">Schedules & group locations</p>
-                </div>
-                <span class="mt-5 inline-flex items-center gap-2 text-xs font-bold text-cyan-200 group-hover:text-white transition-colors">
-                    Open Portal
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </span>
+            <a href="meeting_service.html" class="card">
+                <div class="card-icon">🗓️</div>
+                <h3>Field Ministry Schedule</h3>
+                <p>View schedules, group locations, and ministry assignments.</p>
+                <span class="card-link">Open Ministry Portal &rarr;</span>
             </a>
-        </div>
-
-        <!-- Quick meetings link -->
-        <div class="fade-up fade-delay-3 relative z-10">
-            <a href="bacungan_meeting_landing_page.html" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white font-bold text-base border border-white/30 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group">
-                <i class="fa-solid fa-calendar-days text-blue-200 group-hover:rotate-12 transition-transform duration-300"></i>
-                View Meeting Schedules
-                <i class="fa-solid fa-chevron-right text-xs text-blue-200 group-hover:translate-x-1 transition-transform"></i>
+            <a href="bacungan_meeting_landing_page.html" class="card">
+                <div class="card-icon">👥</div>
+                <h3>Meeting Schedules</h3>
+                <p>Navigate to Midweek and Weekend meeting pages.</p>
+                <span class="card-link">Open Meeting Portal &rarr;</span>
             </a>
         </div>
     </div>
+</section>
 
-    <!-- Footer watermark -->
-    <div class="text-center text-xs text-blue-200/70 font-bold mt-12 mb-2 relative z-10">
-        Bacungan Board &bull; Congregation Information System
-    </div>
-</main>
+<!-- Footer -->
+<footer class="site-footer">
+    Bacungan Board &bull; Congregation Information System
+</footer>
 
 <script>
-    (function() {
-        const themeToggle = document.getElementById('theme-toggle');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const html = document.documentElement;
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
 
-        const saved = localStorage.getItem('bacungan-theme');
-        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        }
-
-        function updateIcon() {
-            const icon = themeToggle.querySelector('i');
-            if (html.classList.contains('dark')) {
-                icon.className = 'fa-solid fa-sun';
-                localStorage.setItem('bacungan-theme', 'dark');
-            } else {
-                icon.className = 'fa-solid fa-moon';
-                localStorage.setItem('bacungan-theme', 'light');
-            }
-        }
-
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            updateIcon();
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('mobile-menu').style.display = 'none';
         });
-        updateIcon();
-
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
-            });
-        });
-
-        const currentPath = window.location.pathname.split('/').pop();
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('text-white', 'bg-slate-800');
-                link.classList.remove('text-slate-300');
-            }
-        });
-    })();
+    });
 </script>
 
 </body>
