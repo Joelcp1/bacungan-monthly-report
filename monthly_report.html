@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
             --success-border: #a7f3d0;
         }
 
-        body.dark {
+        .dark {
             --bg-body: #0f172a;
             --bg-card: #1e293b;
             --text-main: #f8fafc;
@@ -181,7 +181,6 @@
             border-top: 1px solid var(--border);
         }
 
-        /* Print styles */
         @media print {
             body { background: #ffffff; padding: 0; color: #000000; }
             .theme-toggle { display: none; }
@@ -190,7 +189,6 @@
             iframe { height: auto; }
         }
 
-        /* Mobile */
         @media (max-width: 640px) {
             body { padding: 12px; }
             header h1 { font-size: 22px; }
@@ -203,10 +201,61 @@
 </head>
 <body>
 
-<div class="container">
+<!-- Shared Navigation -->
+<nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-sm border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-white">Bacungan <span class="text-blue-400">Congregation</span></span>
+            </div>
+            <div class="hidden md:flex items-center space-x-1">
+                <a href="index.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-house w-4 h-4"></i> <span class="hidden sm:inline">Main Page</span>
+                </a>
+                <a href="monthly_report.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> <span class="hidden sm:inline">Monthly Report</span>
+                </a>
+                <a href="meeting_service.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> <span class="hidden sm:inline">Meeting Service</span>
+                </a>
+                <a href="bacungan_meeting_landing_page.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-users w-4 h-4"></i> <span class="hidden sm:inline">Meeting Landing</span>
+                </a>
+                <a href="Midweek.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar w-4 h-4"></i> <span class="hidden sm:inline">Midweek</span>
+                </a>
+                <a href="Weekend_Meeting.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-sun w-4 h-4"></i> <span class="hidden sm:inline">Weekend</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-t border-slate-700 pb-4">
+            <div class="px-4 space-y-2">
+                <a href="index.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-house w-4 h-4"></i> Main Page</a>
+                <a href="monthly_report.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-clipboard-check w-4 h-4"></i> Monthly Report</a>
+                <a href="meeting_service.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-days w-4 h-4"></i> Meeting Service</a>
+                <a href="bacungan_meeting_landing_page.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-users w-4 h-4"></i> Meeting Landing Page</a>
+                <a href="Midweek.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar w-4 h-4"></i> Midweek Meeting</a>
+                <a href="Weekend_Meeting.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-sun w-4 h-4"></i> Weekend Meeting</a>
+            </div>
+        </div>
+    </div>
+</nav>
 
+<div class="container">
     <header>
-        <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">🌙 Dark Mode</button>
+        <button class="theme-toggle" id="page-theme-toggle" title="Toggle Dark Mode">🌙 Dark Mode</button>
         <h1>Bacungan Congregation</h1>
         <p>Monthly Field Service Report</p>
         <span class="period">Submission Portal</span>
@@ -243,7 +292,6 @@
     <footer class="footer">
         Bacungan Congregation Monthly Field Service Report Portal &bull; Handled directly via embedded Google Form
     </footer>
-
 </div>
 
 <style>
@@ -260,45 +308,26 @@
 </style>
 
 <script>
-    // ============================================================
-    // Dark Mode — follows system preference by default, toggle overrides
-    // ============================================================
-    const toggleBtn = document.getElementById('theme-toggle');
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    // Dark mode for page toggle
+    (function() {
+        const btn = document.getElementById('page-theme-toggle');
+        const html = document.documentElement;
 
-    // Start with system preference
-    if (systemDark.matches) {
-        document.body.classList.add('dark');
-        toggleBtn.textContent = '☀️ Light Mode';
-    }
-
-    toggleBtn.addEventListener('click', () => {
-        sessionStorage.themeManuallySet = 'true'; // user has manually overridden
-        const isDark = document.body.classList.toggle('dark');
-        toggleBtn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-    });
-
-    // Keep in sync if the user changes system theme while the page is open
-    // (only auto-switch if user hasn't manually toggled this session)
-    systemDark.addEventListener('change', (e) => {
-        if (!sessionStorage.themeManuallySet) {
-            if (e.matches) {
-                document.body.classList.add('dark');
-                toggleBtn.textContent = '☀️ Light Mode';
-            } else {
-                document.body.classList.remove('dark');
-                toggleBtn.textContent = '🌙 Dark Mode';
-            }
+        const saved = localStorage.getItem('bacungan-theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            btn.textContent = '☀️ Light Mode';
+        } else {
+            btn.textContent = '🌙 Dark Mode';
         }
-    });
 
-    // ============================================================
-    // Submission Confirmation (inline — no redirect, no 404 risk)
-    // ============================================================
-    // NOTE: The Google Form is inside a cross-origin iframe (docs.google.com),
-    // so the parent page cannot automatically detect when the form is submitted.
-    // The user clicks "I've Submitted &rarr;" after completing the form,
-    // which shows a success banner inline on this same page.
+        btn.addEventListener('click', () => {
+            const isDark = html.classList.toggle('dark');
+            btn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            localStorage.setItem('bacungan-theme', isDark ? 'dark' : 'light');
+        });
+    })();
+
     function showConfirmation() {
         const alert = document.getElementById('success-alert');
         alert.classList.add('show');

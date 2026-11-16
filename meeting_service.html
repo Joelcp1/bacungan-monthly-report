@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Field Ministry Schedule</title>
+    <title>Field Ministry Schedule - Bacungan Congregation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class', // Enable class-based dark mode
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -20,51 +20,31 @@
                             900: '#134e4a',
                         }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
-
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: .5; }
         }
-
-        .animate-pulse-slow {
-            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .view-hidden {
-            display: none !important;
-        }
-
-        /* TV View specific adjustments */
-        .tv-view-container {
-            font-size: 1.25rem;
-        }
-        .tv-view-container .schedule-card {
-            padding: 2rem;
-            border-width: 2px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .view-hidden { display: none !important; }
+        .tv-view-container { font-size: 1.25rem; }
+        .tv-view-container .schedule-card { padding: 2rem; border-width: 2px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2); }
         .tv-view-container h1 { font-size: 3rem; }
         .tv-view-container .text-lg { font-size: 1.5rem; line-height: 2rem; }
         .tv-view-container .text-sm { font-size: 1.125rem; line-height: 1.75rem; }
         .tv-view-container .text-xs { font-size: 1rem; line-height: 1.5rem; }
-
         .tv-view-container::-webkit-scrollbar { display: none; }
         .tv-view-container { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-
     <script>
-        // Check local storage or system preference on load to set initial theme
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -72,671 +52,463 @@
         }
     </script>
 </head>
-
 <body class="min-h-screen bg-[#f3f4f6] dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-4 md:p-8 transition-colors duration-300 relative" id="app-body">
 
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
-
-    <div class="max-w-6xl mx-auto transition-all duration-300" id="main-container">
-
-        <header class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8 border border-gray-100 dark:border-gray-700 flex flex-col lg:flex-row justify-between items-center gap-6 transition-colors duration-300" id="main-header">
-
-            <div class="flex-1 w-full text-center lg:text-left">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight transition-all duration-300">Field Ministry Schedule</h1>
-                <div class="flex items-center justify-center lg:justify-start gap-2 mt-2 flex-wrap">
-                    <span id="sync-status-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300">Connecting...</span>
-                    <span id="last-synced-badge" class="text-xs text-gray-500 dark:text-gray-400"></span>
-                    <button id="sync-now-btn" class="text-xs font-bold px-3 py-1.5 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-colors flex items-center gap-1.5">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                        Sync Now
-                    </button>
+<!-- Shared Navigation -->
+<nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-sm border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
+                <span class="font-bold text-xl tracking-tight text-white">Bacungan <span class="text-blue-400">Congregation</span></span>
             </div>
-
-            <div class="flex flex-col sm:flex-row items-center gap-4">
-
-                <!-- View Toggles -->
-                <div class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
-                    <button onclick="switchView('card')" id="btn-view-card" type="button" aria-pressed="true" class="view-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors bg-white dark:bg-gray-700 shadow-sm text-brand-600 dark:text-brand-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                        Card
-                    </button>
-                    <button onclick="switchView('list')" id="btn-view-list" type="button" aria-pressed="false" class="view-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                        List
-                    </button>
-                    <button onclick="switchView('tv')" id="btn-view-tv" type="button" aria-pressed="false" class="view-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        TV
-                    </button>
-                </div>
-
-                <!-- Dark Mode Toggle Button -->
-                <button id="theme-toggle" type="button" aria-label="Toggle dark mode" aria-disabled="false" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 transition-colors duration-300 border border-transparent dark:border-gray-600 bg-gray-50 dark:bg-gray-800 shadow-sm">
-                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            <div class="hidden md:flex items-center space-x-1">
+                <a href="index.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-house w-4 h-4"></i> <span class="hidden sm:inline">Main Page</span>
+                </a>
+                <a href="monthly_report.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> <span class="hidden sm:inline">Monthly Report</span>
+                </a>
+                <a href="meeting_service.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> <span class="hidden sm:inline">Meeting Service</span>
+                </a>
+                <a href="bacungan_meeting_landing_page.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-users w-4 h-4"></i> <span class="hidden sm:inline">Meeting Landing</span>
+                </a>
+                <a href="Midweek.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar w-4 h-4"></i> <span class="hidden sm:inline">Midweek</span>
+                </a>
+                <a href="Weekend_Meeting.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-sun w-4 h-4"></i> <span class="hidden sm:inline">Weekend</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
                 </button>
-
-            </div>
-
-            <div id="month-header" class="bg-brand-900 dark:bg-brand-800 text-white px-6 py-3 rounded-xl shadow-md flex flex-col items-center justify-center min-w-[150px] transition-transform duration-300 mt-4 lg:mt-0">
-                <span class="text-xs uppercase tracking-wider font-semibold text-brand-100 opacity-80">Month</span>
-                <span id="display-month" class="text-2xl font-bold leading-tight mt-1">Loading...</span>
-                <span id="display-year" class="text-sm font-medium text-brand-100"></span>
-            </div>
-        </header>
-
-        <!-- Search & Activity Filter Controls -->
-        <div id="search-filter-container" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between transition-colors duration-300">
-            <div class="relative w-full sm:w-80">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" id="search-input" oninput="handleSearchFilter()" placeholder="Search assignee, date, remarks..." class="w-full pl-9 pr-8 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors">
-                <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Menu">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
-
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <label for="activity-filter" class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">Activity:</label>
-                <select id="activity-filter" onchange="handleSearchFilter()" class="w-full sm:w-auto px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
-                    <option value="ALL">All Activities</option>
-                </select>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-t border-slate-700 pb-4">
+            <div class="px-4 space-y-2">
+                <a href="index.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-house w-4 h-4"></i> Main Page</a>
+                <a href="monthly_report.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-clipboard-check w-4 h-4"></i> Monthly Report</a>
+                <a href="meeting_service.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-days w-4 h-4"></i> Meeting Service</a>
+                <a href="bacungan_meeting_landing_page.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-users w-4 h-4"></i> Meeting Landing Page</a>
+                <a href="Midweek.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar w-4 h-4"></i> Midweek Meeting</a>
+                <a href="Weekend_Meeting.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-sun w-4 h-4"></i> Weekend Meeting</a>
             </div>
         </div>
+    </div>
+</nav>
 
-        <!-- Polite live region: announces the result count on every filter
-             change and the active view on switch. Deliberately NOT on the
-             schedule containers — those are re-rendered wholesale on each
-             keystroke, which would re-announce the entire schedule. -->
-        <p id="result-summary" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></p>
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
-        <!-- Error State -->
-        <div id="error-message" role="alert" class="hidden bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-red-700 dark:text-red-300 font-medium" id="error-text">Failed to load schedule.</p>
-                </div>
+<div class="max-w-6xl mx-auto transition-all duration-300" id="main-container">
+    <header class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8 border border-gray-100 dark:border-gray-700 flex flex-col lg:flex-row justify-between items-center gap-6 transition-colors duration-300" id="main-header">
+        <div class="flex-1 w-full text-center lg:text-left">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight transition-all duration-300">Field Ministry Schedule</h1>
+            <div class="flex items-center justify-center lg:justify-start gap-2 mt-2 flex-wrap">
+                <span id="sync-status-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300">Connecting...</span>
+                <span id="last-synced-badge" class="text-xs text-gray-500 dark:text-gray-400"></span>
+                <button id="sync-now-btn" class="text-xs font-bold px-3 py-1.5 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-colors flex items-center gap-1.5">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Sync Now
+                </button>
             </div>
         </div>
-
-        <!-- Loading State Skeleton (decorative — the live region announces state) -->
-        <div id="loading-state" aria-hidden="true" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-48 animate-pulse-slow">
-                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
-                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            <div class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                <button onclick="switchView('card')" id="btn-view-card" type="button" aria-pressed="true" class="view-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors bg-white dark:bg-gray-700 shadow-sm text-brand-600 dark:text-brand-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> Card
+                </button>
+                <button onclick="switchView('list')" id="btn-view-list" type="button" aria-pressed="false" class="view-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> List
+                </button>
+                <button onclick="switchView('tv')" id="btn-view-tv" type="button" aria-pressed="false" class="view-btn flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z"></path></svg> TV
+                </button>
             </div>
-             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-48 animate-pulse-slow">
-                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
-                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+            <button id="theme-toggle-page" type="button" aria-label="Toggle dark mode" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 transition-colors duration-300 border border-transparent dark:border-gray-600 bg-gray-50 dark:bg-gray-800 shadow-sm">
+                <svg id="theme-toggle-dark-icon-page" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon-page" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+        <div id="month-header" class="bg-brand-900 dark:bg-brand-800 text-white px-6 py-3 rounded-xl shadow-md flex flex-col items-center justify-center min-w-[150px] transition-transform duration-300 mt-4 lg:mt-0">
+            <span class="text-xs uppercase tracking-wider font-semibold text-brand-100 opacity-80">Month</span>
+            <span id="display-month" class="text-2xl font-bold leading-tight mt-1">Loading...</span>
+            <span id="display-year" class="text-sm font-medium text-brand-100"></span>
+        </div>
+    </header>
+
+    <div id="search-filter-container" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between transition-colors duration-300">
+        <div class="relative w-full sm:w-80">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
-             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-48 animate-pulse-slow hidden md:block">
-                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
-                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-            </div>
+            <input type="text" id="search-input" oninput="handleSearchFilter()" placeholder="Search assignee, date, remarks..." class="w-full pl-9 pr-8 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors">
+            <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
-
-        <!-- Card View Container -->
-        <div id="schedule-container-card" role="region" aria-label="Schedule, card view" tabindex="0" class="view-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
-            <!-- Cards injected here -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <label for="activity-filter" class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">Activity:</label>
+            <select id="activity-filter" onchange="handleSearchFilter()" class="w-full sm:w-auto px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+                <option value="ALL">All Activities</option>
+            </select>
         </div>
-
-        <!-- List View Container -->
-        <div id="schedule-container-list" role="region" aria-label="Schedule, list view" tabindex="0" class="view-container flex flex-col gap-3 hidden">
-            <!-- List items injected here -->
-        </div>
-
-        <!-- TV View Container -->
-        <div id="schedule-container-tv" role="region" aria-label="Schedule, TV view" tabindex="0" class="view-container grid grid-cols-1 xl:grid-cols-2 gap-8 hidden tv-view-container">
-            <!-- Large TV cards injected here -->
-        </div>
-
-        <!-- Footer -->
-        <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400 pb-8 transition-colors duration-300">
-            <p>Schedule syncs automatically with the Google Sheet.</p>
-        </footer>
-
     </div>
 
-    <script>
-        // Google Sheet config — synced via the gviz JSONP endpoint (CORS-safe)
-        const GOOGLE_SHEET_ID = '1mYrnzfWeMhmgRjoRFqmMF01vuRpDhW_EzRy1jAk3Gno';
-        const GOOGLE_SHEET_GID = '1928713841';
+    <p id="result-summary" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></p>
 
-        // DOM Elements
-        const loadingState = document.getElementById('loading-state');
-        const errorMessage = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
+    <div id="error-message" role="alert" class="hidden bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg shadow-sm">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+            </div>
+            <div class="ml-3"><p class="text-sm text-red-700 dark:text-red-300 font-medium" id="error-text">Failed to load schedule.</p></div>
+        </div>
+    </div>
 
-        const displayMonth = document.getElementById('display-month');
-        const displayYear = document.getElementById('display-year');
-        const resultSummary = document.getElementById('result-summary');
+    <div id="loading-state" aria-hidden="true" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-48 animate-pulse-slow">
+            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-48 animate-pulse-slow">
+            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 h-48 animate-pulse-slow hidden md:block">
+            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+    </div>
 
-        const containers = {
-            card: document.getElementById('schedule-container-card'),
-            list: document.getElementById('schedule-container-list'),
-            tv: document.getElementById('schedule-container-tv')
-        };
+    <div id="schedule-container-card" role="region" aria-label="Schedule, card view" tabindex="0" class="view-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+    <div id="schedule-container-list" role="region" aria-label="Schedule, list view" tabindex="0" class="view-container flex flex-col gap-3 hidden"></div>
+    <div id="schedule-container-tv" role="region" aria-label="Schedule, TV view" tabindex="0" class="view-container grid grid-cols-1 xl:grid-cols-2 gap-8 hidden tv-view-container"></div>
 
-        let globalScheduleItems = [];
-        let filteredScheduleItems = [];
-        let currentView = 'card';
-        let isTVModeForcedDark = false;
-        let lastSyncTime = null;
+    <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400 pb-8 transition-colors duration-300">
+        <p>Schedule syncs automatically with the Google Sheet.</p>
+    </footer>
+</div>
 
-        // XSS-safe escaping for any value coming from the sheet
-        function esc(value) {
-            const div = document.createElement('div');
-            div.textContent = value === null || value === undefined ? '' : String(value);
-            return div.innerHTML;
-        }
+<script>
+    const GOOGLE_SHEET_ID = '1mYrnzfWeMhmgRjoRFqmMF01vuRpDhW_EzRy1jAk3Gno';
+    const GOOGLE_SHEET_GID = '1928713841';
 
-        // Polite live region for filter/view changes. Announcing the result
-        // COUNT keeps a screen reader informed without re-reading the whole
-        // schedule on every keystroke of the search box.
-        function announce(message) {
-            if (resultSummary) resultSummary.textContent = message;
-        }
+    const loadingState = document.getElementById('loading-state');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const displayMonth = document.getElementById('display-month');
+    const displayYear = document.getElementById('display-year');
+    const resultSummary = document.getElementById('result-summary');
+    const containers = {
+        card: document.getElementById('schedule-container-card'),
+        list: document.getElementById('schedule-container-list'),
+        tv: document.getElementById('schedule-container-tv')
+    };
+    let globalScheduleItems = [];
+    let filteredScheduleItems = [];
+    let currentView = 'card';
+    let isTVModeForcedDark = false;
+    let lastSyncTime = null;
 
-        function populateActivityFilter(items) {
-            const activitySelect = document.getElementById('activity-filter');
-            if (!activitySelect) return;
+    function esc(value) {
+        const div = document.createElement('div');
+        div.textContent = value === null || value === undefined ? '' : String(value);
+        return div.innerHTML;
+    }
 
-            const activities = [...new Set(items.map(item => item.activity).filter(Boolean))].sort();
-            const currentVal = activitySelect.value;
+    function announce(message) {
+        if (resultSummary) resultSummary.textContent = message;
+    }
 
-            activitySelect.innerHTML = '<option value="ALL">All Activities</option>';
-            activities.forEach(act => {
-                const option = document.createElement('option');
-                option.value = act;
-                option.textContent = act;
-                activitySelect.appendChild(option);
-            });
-
-            if (activities.includes(currentVal)) {
-                activitySelect.value = currentVal;
-            }
-        }
-
-        function handleSearchFilter() {
-            const searchInput = document.getElementById('search-input');
-            const clearBtn = document.getElementById('clear-search-btn');
-            const activitySelect = document.getElementById('activity-filter');
-
-            const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
-            const selectedActivity = activitySelect ? activitySelect.value : 'ALL';
-
-            if (clearBtn) {
-                if (query.length > 0) {
-                    clearBtn.classList.remove('hidden');
-                } else {
-                    clearBtn.classList.add('hidden');
-                }
-            }
-
-            filteredScheduleItems = globalScheduleItems.filter(item => {
-                const matchesQuery = !query ||
-                    (item.assignee && item.assignee.toLowerCase().includes(query)) ||
-                    (item.activity && item.activity.toLowerCase().includes(query)) ||
-                    (item.remarks && item.remarks.toLowerCase().includes(query)) ||
-                    (item.date && item.date.toLowerCase().includes(query));
-
-                const matchesActivity = selectedActivity === 'ALL' || item.activity === selectedActivity;
-
-                return matchesQuery && matchesActivity;
-            });
-
-            renderSchedule(filteredScheduleItems, currentView);
-
-            announce(filteredScheduleItems.length === globalScheduleItems.length
-                ? `Showing all ${filteredScheduleItems.length} schedule entries`
-                : `Showing ${filteredScheduleItems.length} of ${globalScheduleItems.length} schedule entries`);
-        }
-
-        function clearSearch() {
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.value = '';
-                handleSearchFilter();
-            }
-        }
-
-        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-        const themeToggleBtn = document.getElementById('theme-toggle');
-
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'pointer-events-auto bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-4 py-3 rounded-xl shadow-lg border border-gray-700 dark:border-gray-300 text-sm font-medium transition-all transform translate-y-2 opacity-0 flex items-center gap-2';
-            toast.innerHTML = `<svg class="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-            const label = document.createElement('span');
-            label.textContent = message;
-            toast.appendChild(label);
-            container.appendChild(toast);
-
-            // Animate in
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            });
-
-            // Auto dismiss
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-
-        function updateThemeIcons() {
-            if (document.documentElement.classList.contains('dark')) {
-                themeToggleLightIcon.classList.remove('hidden');
-                themeToggleDarkIcon.classList.add('hidden');
-            } else {
-                themeToggleLightIcon.classList.add('hidden');
-                themeToggleDarkIcon.classList.remove('hidden');
-            }
-        }
-
-        // Initial Icon setup
-        updateThemeIcons();
-
-        themeToggleBtn.addEventListener('click', function() {
-            // Prevent user from manually toggling theme if they are in TV mode
-            if(isTVModeForcedDark) {
-                showToast("TV Mode requires dark theme. Switch to Card or List view to change theme.");
-                return;
-            }
-
-            const isDark = document.documentElement.classList.contains('dark');
-            document.documentElement.classList.toggle('dark', !isDark);
-            localStorage.setItem('color-theme', !isDark ? 'dark' : 'light');
-            updateThemeIcons();
+    function populateActivityFilter(items) {
+        const activitySelect = document.getElementById('activity-filter');
+        if (!activitySelect) return;
+        const activities = [...new Set(items.map(item => item.activity).filter(Boolean))].sort();
+        const currentVal = activitySelect.value;
+        activitySelect.innerHTML = '<option value="ALL">All Activities</option>';
+        activities.forEach(act => {
+            const option = document.createElement('option');
+            option.value = act;
+            option.textContent = act;
+            activitySelect.appendChild(option);
         });
+        if (activities.includes(currentVal)) activitySelect.value = currentVal;
+    }
 
-        function switchView(viewName) {
-            currentView = viewName;
+    function handleSearchFilter() {
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('clear-search-btn');
+        const activitySelect = document.getElementById('activity-filter');
+        const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        const selectedActivity = activitySelect ? activitySelect.value : 'ALL';
+        if (clearBtn) {
+            if (query.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+        filteredScheduleItems = globalScheduleItems.filter(item => {
+            const matchesQuery = !query ||
+                (item.assignee && item.assignee.toLowerCase().includes(query)) ||
+                (item.activity && item.activity.toLowerCase().includes(query)) ||
+                (item.remarks && item.remarks.toLowerCase().includes(query)) ||
+                (item.date && item.date.toLowerCase().includes(query));
+            const matchesActivity = selectedActivity === 'ALL' || item.activity === selectedActivity;
+            return matchesQuery && matchesActivity;
+        });
+        renderSchedule(filteredScheduleItems, currentView);
+        announce(filteredScheduleItems.length === globalScheduleItems.length
+            ? `Showing all ${filteredScheduleItems.length} schedule entries`
+            : `Showing ${filteredScheduleItems.length} of ${globalScheduleItems.length} schedule entries`);
+    }
 
-            // Update buttons styling
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.classList.remove('bg-white', 'dark:bg-gray-700', 'shadow-sm', 'text-brand-600', 'dark:text-brand-400');
-                btn.classList.add('text-gray-600', 'dark:text-gray-400');
+    function clearSearch() {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) { searchInput.value = ''; handleSearchFilter(); }
+    }
+
+    function updateThemeIcons() {
+        const darkIcon = document.getElementById('theme-toggle-dark-icon-page');
+        const lightIcon = document.getElementById('theme-toggle-light-icon-page');
+        if (document.documentElement.classList.contains('dark')) {
+            lightIcon.classList.remove('hidden');
+            darkIcon.classList.add('hidden');
+        } else {
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        }
+    }
+    updateThemeIcons();
+
+    document.getElementById('theme-toggle-page').addEventListener('click', function() {
+        if(isTVModeForcedDark) {
+            showToast("TV Mode requires dark theme. Switch to Card or List view to change theme.");
+            return;
+        }
+        const isDark = document.documentElement.classList.contains('dark');
+        document.documentElement.classList.toggle('dark', !isDark);
+        localStorage.setItem('color-theme', !isDark ? 'dark' : 'light');
+        updateThemeIcons();
+    });
+
+    function switchView(viewName) {
+        currentView = viewName;
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.classList.remove('bg-white', 'dark:bg-gray-700', 'shadow-sm', 'text-brand-600', 'dark:text-brand-400');
+            btn.classList.add('text-gray-600', 'dark:text-gray-400');
+            btn.setAttribute('aria-pressed', 'false');
+        });
+        const activeBtn = document.getElementById(`btn-view-${viewName}`);
+        if(activeBtn) {
+            activeBtn.classList.remove('text-gray-600', 'dark:text-gray-400');
+            activeBtn.classList.add('bg-white', 'dark:bg-gray-700', 'shadow-sm', 'text-brand-600', 'dark:text-brand-400');
+            activeBtn.setAttribute('aria-pressed', 'true');
+        }
+        Object.values(containers).forEach(c => c.classList.add('hidden'));
+        const mainContainer = document.getElementById('main-container');
+        const monthHeader = document.getElementById('month-header');
+        const themeBtn = document.getElementById('theme-toggle-page');
+        if (viewName === 'tv') {
+            mainContainer.classList.add('max-w-full', 'px-4');
+            mainContainer.classList.remove('max-w-6xl');
+            monthHeader.classList.add('scale-110');
+            isTVModeForcedDark = true;
+            document.documentElement.classList.add('dark');
+            themeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            themeBtn.setAttribute('aria-disabled', 'true');
+            updateThemeIcons();
+        } else {
+            mainContainer.classList.remove('max-w-full', 'px-4');
+            mainContainer.classList.add('max-w-6xl');
+            monthHeader.classList.remove('scale-110');
+            isTVModeForcedDark = false;
+            themeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            themeBtn.setAttribute('aria-disabled', 'false');
+            if (localStorage.getItem('color-theme') === 'light' || (!('color-theme' in localStorage) && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcons();
+        }
+        if (globalScheduleItems.length > 0) handleSearchFilter();
+        containers[viewName].classList.remove('hidden');
+        announce(`${activeBtn ? activeBtn.textContent.trim() : viewName} view, ${filteredScheduleItems.length} entries`);
+    }
+
+    function renderSchedule(items, viewType = currentView) {
+        const container = containers[viewType];
+        container.innerHTML = '';
+        if (items.length === 0) {
+            container.innerHTML = `<div class="col-span-full bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-xl shadow-sm border p-8 text-center"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">No schedule found</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No entries matching criteria.</p></div>`;
+            return;
+        }
+        items.forEach(item => {
+            const activityLower = (item.activity || '').toLowerCase();
+            let activityBadgeColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+            if (activityLower.includes('bs/rv') && !activityLower.includes('preaching')) activityBadgeColor = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
+            const el = document.createElement('div');
+            if (viewType === 'card' || viewType === 'tv') {
+                const isTv = viewType === 'tv';
+                const cardBg = isTv ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
+                const headerBg = isTv ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-100 dark:border-gray-600';
+                const titleText = isTv ? 'text-white' : 'text-gray-900 dark:text-white';
+                const subText = isTv ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400';
+                const remarkBorder = isTv ? 'border-gray-600' : 'border-gray-100 dark:border-gray-700';
+                el.className = `schedule-card ${cardBg} rounded-xl shadow-sm border overflow-hidden flex flex-col h-full transition-colors duration-300`;
+                el.innerHTML = `<div class="border-b ${headerBg} px-5 py-4 flex justify-between items-center transition-colors duration-300"><div class="flex items-center space-x-2 font-semibold text-gray-700 dark:text-gray-200"><svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>${esc(item.date)}</span></div>${item.time ? `<span class="bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-bold px-2.5 py-1 rounded-md border border-brand-100 dark:border-brand-800/50">${esc(item.time)}</span>` : ''}</div><div class="p-5 flex-grow flex flex-col justify-between"><div><div class="mb-4"><p class="text-xs ${subText} uppercase tracking-wide font-semibold mb-1">Assigned To</p><p class="text-lg font-bold ${titleText} leading-tight">${item.assignee ? esc(item.assignee) : `<span class="${subText} italic">Unassigned</span>`}</p></div><div><p class="text-xs ${subText} uppercase tracking-wide font-semibold mb-2">Activity</p><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${activityBadgeColor}">${item.activity ? esc(item.activity) : 'Not specified'}</span></div></div>${item.remarks ? `<div class="mt-4 pt-4 border-t ${remarkBorder}"><p class="text-xs ${subText} uppercase tracking-wide font-semibold mb-1">Remarks</p><p class="text-sm text-gray-700 dark:text-gray-300 italic">"${esc(item.remarks)}"</p></div>` : ''}</div>`;
+            } else if (viewType === 'list') {
+                el.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-300';
+                el.innerHTML = `<div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 flex-grow"><div class="min-w-[150px]"><div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 font-semibold text-sm"><svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>${esc(item.date)}</span></div>${item.time ? `<div class="text-brand-600 dark:text-brand-400 text-xs font-bold mt-1 pl-6">${esc(item.time)}</div>` : ''}</div><div class="flex-grow"><p class="text-sm font-bold text-gray-900 dark:text-white">${item.assignee ? esc(item.assignee) : '<span class="text-gray-400 dark:text-gray-500 italic">Unassigned</span>'}</p>${item.remarks ? `<p class="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5 truncate max-w-xs md:max-w-md">"${esc(item.remarks)}"</p>` : ''}</div></div><div class="flex-shrink-0"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${activityBadgeColor}">${item.activity ? esc(item.activity) : 'Not specified'}</span></div>`;
+            }
+            container.appendChild(el);
+        });
+    }
+
+    const MONTH_NAME_RE = /^(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(t(ember)?)?|oct(ober)?|nov(ember)?|dec(ember)?)$/i;
+    const HEADER_RULES = [
+        { field: 'assignee', test: u => u.includes('BROTHER') || u.includes('ASSIGN') },
+        { field: 'activity', test: u => u.includes('ACTIVIT') },
+        { field: 'remarks',  test: u => u.includes('REMARK') || u.includes('NOTE') },
+        { field: 'time',     test: u => u.includes('TIME') },
+        { field: 'date',     test: u => u.includes('DATE') || u.includes('SCHEDULE') }
+    ];
+
+    function processData(table) {
+        const rows = (table && table.rows) || [];
+        const cols = (table && table.cols) || [];
+        const items = [];
+        let headerRowIndex = -1;
+        let colMap = { time: 0, date: 1, assignee: 2, activity: 3, remarks: 4 };
+        for (let i = 0; i < Math.min(10, rows.length); i++) {
+            const cells = rows[i].c || [];
+            const found = {};
+            cells.forEach((cell, idx) => {
+                if (!cell) return;
+                const label = (cell.f || cell.v || '').toString().toUpperCase().trim();
+                if (!label) return;
+                for (const rule of HEADER_RULES) {
+                    if (found[rule.field] === undefined && rule.test(label)) { found[rule.field] = idx; break; }
+                }
             });
-            const activeBtn = document.getElementById(`btn-view-${viewName}`);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-600', 'dark:text-gray-400');
-                activeBtn.classList.add('bg-white', 'dark:bg-gray-700', 'shadow-sm', 'text-brand-600', 'dark:text-brand-400');
-            }
-            // Colour alone did not convey the active view; expose it as state.
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.setAttribute('aria-pressed', String(btn.id === 'btn-view-' + viewName));
-            });
-
-            // Hide all containers
-            Object.values(containers).forEach(container => {
-                container.classList.add('hidden');
-            });
-
-            const mainContainer = document.getElementById('main-container');
-            const monthHeader = document.getElementById('month-header');
-            const themeBtn = document.getElementById('theme-toggle');
-
-            // Handle TV Mode logic (forces a specific presentation)
-            if (viewName === 'tv') {
-                mainContainer.classList.add('max-w-full', 'px-4');
-                mainContainer.classList.remove('max-w-6xl');
-                monthHeader.classList.add('scale-110');
-
-                // Force dark mode for TV, but remember user preference isn't changed in localstorage
-                isTVModeForcedDark = true;
-                document.documentElement.classList.add('dark');
-                themeBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                themeBtn.setAttribute('aria-disabled', 'true');
-                updateThemeIcons();
-
-            } else {
-                mainContainer.classList.remove('max-w-full', 'px-4');
-                mainContainer.classList.add('max-w-6xl');
-                monthHeader.classList.remove('scale-110');
-
-                // Restore user theme preference when leaving TV mode
-                isTVModeForcedDark = false;
-                themeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                themeBtn.setAttribute('aria-disabled', 'false');
-
-                if (localStorage.getItem('color-theme') === 'light' || (!('color-theme' in localStorage) && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.remove('dark');
-                }
-                updateThemeIcons();
-            }
-
-            // Show selected container and render if data exists
-            if (globalScheduleItems.length > 0) {
-                handleSearchFilter();
-            }
-            containers[viewName].classList.remove('hidden');
-
-            // Announce the switch: aria-pressed conveys it non-visually, but
-            // the live region also gives the new entry count.
-            announce(`${activeBtn ? activeBtn.textContent.trim() : viewName} view, ${filteredScheduleItems.length} entries`);
-        }
-
-        function renderSchedule(items, viewType = currentView) {
-            const container = containers[viewType];
-            container.innerHTML = ''; // Clear previous content
-
-            if (items.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-xl shadow-sm border p-8 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">No schedule found</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">There are no entries matching your search or filter criteria.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            items.forEach(item => {
-                const activityLower = (item.activity || '').toLowerCase();
-                let activityBadgeColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-                if (activityLower.includes('bs/rv') && !activityLower.includes('preaching')) {
-                    activityBadgeColor = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
-                }
-
-                const el = document.createElement('div');
-
-                if (viewType === 'card' || viewType === 'tv') {
-                    // Shared card structure with responsive dark mode classes
-                    const isTv = viewType === 'tv';
-                    const cardBg = isTv ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
-                    const headerBg = isTv ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 dark:bg-gray-700/50 border-gray-100 dark:border-gray-600';
-                    const titleText = isTv ? 'text-white' : 'text-gray-900 dark:text-white';
-                    const subText = isTv ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400';
-                    const remarkBorder = isTv ? 'border-gray-600' : 'border-gray-100 dark:border-gray-700';
-
-                    el.className = `schedule-card ${cardBg} rounded-xl shadow-sm border overflow-hidden flex flex-col h-full transition-colors duration-300`;
-                    el.innerHTML = `
-                        <div class="border-b ${headerBg} px-5 py-4 flex justify-between items-center transition-colors duration-300">
-                            <div class="flex items-center space-x-2 font-semibold text-gray-700 dark:text-gray-200">
-                                <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                <span>${esc(item.date)}</span>
-                            </div>
-                            ${item.time ? `<span class="bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-bold px-2.5 py-1 rounded-md border border-brand-100 dark:border-brand-800/50">${esc(item.time)}</span>` : ''}
-                        </div>
-
-                        <div class="p-5 flex-grow flex flex-col justify-between">
-                            <div>
-                                <div class="mb-4">
-                                    <p class="text-xs ${subText} uppercase tracking-wide font-semibold mb-1">Assigned To</p>
-                                    <p class="text-lg font-bold ${titleText} leading-tight">${item.assignee ? esc(item.assignee) : `<span class="${subText} italic">Unassigned</span>`}</p>
-                                </div>
-
-                                <div>
-                                    <p class="text-xs ${subText} uppercase tracking-wide font-semibold mb-2">Activity</p>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${activityBadgeColor}">
-                                        ${item.activity ? esc(item.activity) : 'Not specified'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            ${item.remarks ? `
-                                <div class="mt-4 pt-4 border-t ${remarkBorder}">
-                                    <p class="text-xs ${subText} uppercase tracking-wide font-semibold mb-1">Remarks</p>
-                                    <p class="text-sm text-gray-700 dark:text-gray-300 italic">"${esc(item.remarks)}"</p>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                } else if (viewType === 'list') {
-                    // List View Structure
-                    el.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-300';
-                    el.innerHTML = `
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 flex-grow">
-                            <div class="min-w-[150px]">
-                                <div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                    <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <span>${esc(item.date)}</span>
-                                </div>
-                                ${item.time ? `<div class="text-brand-600 dark:text-brand-400 text-xs font-bold mt-1 pl-6">${esc(item.time)}</div>` : ''}
-                            </div>
-
-                            <div class="flex-grow">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white">${item.assignee ? esc(item.assignee) : '<span class="text-gray-400 dark:text-gray-500 italic">Unassigned</span>'}</p>
-                                ${item.remarks ? `<p class="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5 truncate max-w-xs md:max-w-md">"${esc(item.remarks)}"</p>` : ''}
-                            </div>
-                        </div>
-
-                        <div class="flex-shrink-0">
-                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${activityBadgeColor}">
-                                ${item.activity ? esc(item.activity) : 'Not specified'}
-                            </span>
-                        </div>
-                    `;
-                }
-
-                container.appendChild(el);
-            });
-        }
-
-        // Plausible month name. The old test was an IGNORE list, so an
-        // unlabelled column's gviz label ("A", "B", "C") passed it and could
-        // be rendered as the month. Only accept something that IS a month.
-        const MONTH_NAME_RE = /^(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(t(ember)?)?|oct(ober)?|nov(ember)?|dec(ember)?)$/i;
-
-        // Column-header vocabulary, tried per row. FIX: the old detection
-        // required a cell containing the literal word "DATE", which this sheet
-        // never has — its header row reads BROTHERS ASSIGNED / ACTIVITY /
-        // REMARKS. headerRowIndex therefore stayed -1, startRow fell back to
-        // 2, and the FIRST schedule row was silently dropped on every load.
-        const HEADER_RULES = [
-            { field: 'assignee', test: u => u.includes('BROTHER') || u.includes('ASSIGN') },
-            { field: 'activity', test: u => u.includes('ACTIVIT') },
-            { field: 'remarks',  test: u => u.includes('REMARK') || u.includes('NOTE') },
-            { field: 'time',     test: u => u.includes('TIME') },
-            { field: 'date',     test: u => u.includes('DATE') || u.includes('SCHEDULE') }
-        ];
-
-        function processData(table) {
-            const rows = (table && table.rows) || [];
-            const cols = (table && table.cols) || [];
-            const items = [];
-
-            // Find the header row: the first row that can claim at least three
-            // of the five known fields. Scoring (rather than matching one
-            // literal) means reordered/renamed columns still resolve.
-            let headerRowIndex = -1;
-            let colMap = { time: 0, date: 1, assignee: 2, activity: 3, remarks: 4 };
-
-            for (let i = 0; i < Math.min(10, rows.length); i++) {
-                const cells = rows[i].c || [];
-                const found = {};
-                cells.forEach((cell, idx) => {
-                    if (!cell) return;
-                    const label = (cell.f || cell.v || '').toString().toUpperCase().trim();
-                    if (!label) return;
-                    for (const rule of HEADER_RULES) {
-                        if (found[rule.field] === undefined && rule.test(label)) { found[rule.field] = idx; break; }
-                    }
-                });
-                if (Object.keys(found).length >= 3) {
-                    colMap = Object.assign({}, colMap, found);
-                    headerRowIndex = i;
-                    break;
-                }
-            }
-
-            if (headerRowIndex === -1) {
-                // Fallback: month/year block layout — row 0 has the month,
-                // row 1 the headers in cols B..E; use fixed positions.
-                if (rows[0] && rows[0].c && rows[0].c[1]) {
-                    displayMonth.textContent = (rows[0].c[1].f || rows[0].c[1].v || 'Unknown').toString().trim();
-                }
-                if (rows[1] && rows[1].c && rows[1].c[1]) {
-                    displayYear.textContent = (rows[1].c[1].f || rows[1].c[1].v || new Date().getFullYear()).toString().trim();
-                }
-            }
-
-            // Month lives in a gviz column LABEL (merged header cell),
-            // e.g. col B labelled "September". Use it when the data rows
-            // don't carry an explicit month block.
-            if (displayMonth.textContent === 'Loading...' || displayMonth.textContent === '') {
-                const monthLabel = cols.map(c => (c.label || '').toString().trim())
-                    .find(label => label && MONTH_NAME_RE.test(label.replace(/:$/, '')));
-                if (monthLabel) displayMonth.textContent = monthLabel.replace(/:$/, '');
-            }
-
-            // FIX: fallback was 2, which assumed a month/year block on rows 0-1.
-            // When no header row is found that skips two real schedule rows.
-            // Blank rows are filtered by the `!date` test below anyway.
-            const startRow = (headerRowIndex !== -1) ? headerRowIndex + 1 : 0;
-            for (let i = startRow; i < rows.length; i++) {
-                const cells = rows[i].c || [];
-                const getValue = (idx) => {
-                    if (idx === undefined || !cells[idx] || cells[idx].v === null || cells[idx].v === undefined) return '';
-                    return (cells[idx].f || cells[idx].v).toString().trim();
-                };
-
-                const time = getValue(colMap.time);
-                const date = getValue(colMap.date);
-                const assignee = getValue(colMap.assignee);
-                const activity = getValue(colMap.activity);
-                const remarks = getValue(colMap.remarks);
-
-                // Skip header repeats and blank rows
-                if (!date || date.toUpperCase() === 'DATE') continue;
-
-                items.push({ time, date, assignee, activity, remarks });
-            }
-
-            // FIX: this ran BEFORE the parse loop above, where `items` is
-            // always empty, so `''.match()` returned null and the year silently
-            // fell back to the current system year — right only by coincidence,
-            // and wrong from January onwards. Derive it from a real date now.
-            if (displayYear.textContent === '') {
-                const dated = items.find(i => /\b(20\d{2})\b/.test(i.date || ''));
-                const yearMatch = dated ? dated.date.match(/\b(20\d{2})\b/) : null;
-                displayYear.textContent = yearMatch ? yearMatch[1] : String(new Date().getFullYear());
-            }
-
-            return items;
-        }
-
-        // Google's gviz endpoint does not send CORS headers, so fetch() fails
-        // when the page runs from disk. Loading it as a <script> (JSONP-style,
-        // using gviz's responseHandler option) works from any origin.
-        function fetchSheetDataViaJsonp() {
-            return new Promise((resolve, reject) => {
-                const handlerName = `__gvizCallback_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-                const timeout = setTimeout(() => {
-                    cleanup();
-                    reject(new Error('Sheet request timed out'));
-                }, 15000);
-
-                function cleanup() {
-                    clearTimeout(timeout);
-                    delete window[handlerName];
-                    const old = document.getElementById(scriptId);
-                    if (old) old.remove();
-                }
-
-                const scriptId = `gviz-script-${handlerName}`;
-
-                window[handlerName] = (json) => {
-                    cleanup();
-                    resolve(json);
-                };
-
-                const script = document.createElement('script');
-                script.id = scriptId;
-                script.src = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq` +
-                    `?tqx=responseHandler:${handlerName};out:json&gid=${GOOGLE_SHEET_GID}&t=${Date.now()}`;
-                script.onerror = () => {
-                    cleanup();
-                    reject(new Error('Network error while loading sheet'));
-                };
-                document.body.appendChild(script);
-            });
-        }
-
-        async function fetchAndRenderData(manualSync = false) {
-            const statusBadge = document.getElementById('sync-status-badge');
-            try {
-                loadingState.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-                if (statusBadge) {
-                    statusBadge.textContent = 'Syncing...';
-                    statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
-                }
-
-                const json = await fetchSheetDataViaJsonp();
-
-                if (!json || json.status === 'error' || !json.table || !json.table.rows) {
-                    throw new Error('Invalid sheet structure or restricted sheet');
-                }
-
-                globalScheduleItems = processData(json.table);
-                if (globalScheduleItems.length === 0) throw new Error('No rows parsed from sheet');
-
-                lastSyncTime = new Date();
-                populateActivityFilter(globalScheduleItems);
-
-                if (statusBadge) {
-                    statusBadge.textContent = 'Live Auto-Sync Active';
-                    statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
-                }
-                updateSyncedBadge();
-                if (manualSync) showToast('Schedule synced successfully with Google Sheets!');
-
-            } catch (error) {
-                console.warn('Google Sheet fetch error:', error);
-                if (statusBadge) {
-                    statusBadge.textContent = 'Offline / Could not reach sheet';
-                    statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
-                }
-
-                if (globalScheduleItems.length === 0) {
-                    errorMessage.classList.remove('hidden');
-                    errorText.textContent = 'Could not load the schedule. Please ensure the Google Sheet is shared as "Anyone with the link can view".';
-                } else if (manualSync) {
-                    showToast('Could not reach Google Sheets — showing last synced data.');
-                }
-            } finally {
-                loadingState.classList.add('hidden');
-                if (globalScheduleItems.length > 0) {
-                    switchView(currentView);
-                }
+            if (Object.keys(found).length >= 3) {
+                colMap = Object.assign({}, colMap, found);
+                headerRowIndex = i;
+                break;
             }
         }
-
-        function updateSyncedBadge() {
-            const badge = document.getElementById('last-synced-badge');
-            if (!badge) return;
-            badge.textContent = lastSyncTime
-                ? `• Last synced ${lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                : '';
+        if (headerRowIndex === -1) {
+            if (rows[0] && rows[0].c && rows[0].c[1]) {
+                displayMonth.textContent = (rows[0].c[1].f || rows[0].c[1].v || 'Unknown').toString().trim();
+            }
+            if (rows[1] && rows[1].c && rows[1].c[1]) {
+                displayYear.textContent = (rows[1].c[1].f || rows[1].c[1].v || new Date().getFullYear()).toString().trim();
+            }
         }
+        if (displayMonth.textContent === 'Loading...' || displayMonth.textContent === '') {
+            const monthLabel = cols.map(c => (c.label || '').toString().trim()).find(label => label && MONTH_NAME_RE.test(label.replace(/:$/, '')));
+            if (monthLabel) displayMonth.textContent = monthLabel.replace(/:$/, '');
+        }
+        const startRow = (headerRowIndex !== -1) ? headerRowIndex + 1 : 0;
+        for (let i = startRow; i < rows.length; i++) {
+            const cells = rows[i].c || [];
+            const getValue = (idx) => {
+                if (idx === undefined || !cells[idx] || cells[idx].v === null || cells[idx].v === undefined) return '';
+                return (cells[idx].f || cells[idx].v).toString().trim();
+            };
+            const time = getValue(colMap.time);
+            const date = getValue(colMap.date);
+            const assignee = getValue(colMap.assignee);
+            const activity = getValue(colMap.activity);
+            const remarks = getValue(colMap.remarks);
+            if (!date || date.toUpperCase() === 'DATE') continue;
+            items.push({ time, date, assignee, activity, remarks });
+        }
+        if (displayYear.textContent === '') {
+            const dated = items.find(i => /\b(20\d{2})\b/.test(i.date || ''));
+            const yearMatch = dated ? dated.date.match(/\b(20\d{2})\b/) : null;
+            displayYear.textContent = yearMatch ? yearMatch[1] : String(new Date().getFullYear());
+        }
+        return items;
+    }
 
-        // Manual sync button
-        document.getElementById('sync-now-btn').addEventListener('click', () => fetchAndRenderData(true));
+    function fetchSheetDataViaJsonp() {
+        return new Promise((resolve, reject) => {
+            const handlerName = `__gvizCallback_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+            const timeout = setTimeout(() => { cleanup(); reject(new Error('Sheet request timed out')); }, 15000);
+            function cleanup() { clearTimeout(timeout); delete window[handlerName]; const old = document.getElementById(scriptId); if (old) old.remove(); }
+            const scriptId = `gviz-script-${handlerName}`;
+            window[handlerName] = (json) => { cleanup(); resolve(json); };
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.src = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=responseHandler:${handlerName};out:json&gid=${GOOGLE_SHEET_GID}&t=${Date.now()}`;
+            script.onerror = () => { cleanup(); reject(new Error('Network error while loading sheet')); };
+            document.body.appendChild(script);
+        });
+    }
 
-        // Auto re-sync every 5 minutes
-        setInterval(() => fetchAndRenderData(false), 5 * 60 * 1000);
+    async function fetchAndRenderData(manualSync = false) {
+        const statusBadge = document.getElementById('sync-status-badge');
+        try {
+            loadingState.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            if (statusBadge) { statusBadge.textContent = 'Syncing...'; statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'; }
+            const json = await fetchSheetDataViaJsonp();
+            if (!json || json.status === 'error' || !json.table || !json.table.rows) throw new Error('Invalid sheet structure');
+            globalScheduleItems = processData(json.table);
+            if (globalScheduleItems.length === 0) throw new Error('No rows parsed');
+            lastSyncTime = new Date();
+            populateActivityFilter(globalScheduleItems);
+            if (statusBadge) { statusBadge.textContent = 'Live Auto-Sync Active'; statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'; }
+            updateSyncedBadge();
+            if (manualSync) showToast('Schedule synced successfully with Google Sheets!');
+        } catch (error) {
+            console.warn('Google Sheet fetch error:', error);
+            if (statusBadge) { statusBadge.textContent = 'Offline / Could not reach sheet'; statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'; }
+            if (globalScheduleItems.length === 0) {
+                errorMessage.classList.remove('hidden');
+                errorText.textContent = 'Could not load the schedule. Please ensure the Google Sheet is shared as "Anyone with the link can view".';
+            } else if (manualSync) showToast('Could not reach Google Sheets — showing last synced data.');
+        } finally {
+            loadingState.classList.add('hidden');
+            if (globalScheduleItems.length > 0) { switchView(currentView); }
+        }
+    }
 
-        // Initialize application on load
-        fetchAndRenderData();
-    </script>
+    function updateSyncedBadge() {
+        const badge = document.getElementById('last-synced-badge');
+        if (!badge) return;
+        badge.textContent = lastSyncTime ? `• Last synced ${lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : '';
+    }
+
+    function showToast(message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'pointer-events-auto bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-4 py-3 rounded-xl shadow-lg border border-gray-700 dark:border-gray-300 text-sm font-medium transition-all transform translate-y-2 opacity-0 flex items-center gap-2';
+        toast.innerHTML = `<svg class="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+        const label = document.createElement('span');
+        label.textContent = message;
+        toast.appendChild(label);
+        container.appendChild(toast);
+        requestAnimationFrame(() => { toast.classList.remove('translate-y-2', 'opacity-0'); });
+        setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => toast.remove(), 300); }, 3500);
+    }
+
+    document.getElementById('sync-now-btn').addEventListener('click', () => fetchAndRenderData(true));
+    setInterval(() => fetchAndRenderData(false), 5 * 60 * 1000);
+    fetchAndRenderData();
+</script>
+
 </body>
 </html>

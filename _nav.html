@@ -1,0 +1,125 @@
+<!-- SHARED NAVIGATION - Include this block at the top of <body> on every page -->
+<nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-sm border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Brand -->
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-white">Bacungan <span class="text-blue-400">Congregation</span></span>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-1">
+                <a href="index.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-house w-4 h-4"></i> <span class="hidden sm:inline">Main Page</span>
+                </a>
+                <a href="monthly_report.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> <span class="hidden sm:inline">Monthly Report</span>
+                </a>
+                <a href="meeting_service.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> <span class="hidden sm:inline">Meeting Service</span>
+                </a>
+                <a href="bacungan_meeting_landing_page.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-users w-4 h-4"></i> <span class="hidden sm:inline">Meeting Landing</span>
+                </a>
+                <a href="Midweek.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar w-4 h-4"></i> <span class="hidden sm:inline">Midweek</span>
+                </a>
+                <a href="Weekend_Meeting.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-sun w-4 h-4"></i> <span class="hidden sm:inline">Weekend</span>
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button + Dark Mode -->
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-t border-slate-700 pb-4">
+            <div class="px-4 space-y-2">
+                <a href="index.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-house w-4 h-4"></i> Main Page
+                </a>
+                <a href="monthly_report.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> Monthly Report
+                </a>
+                <a href="meeting_service.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> Meeting Service
+                </a>
+                <a href="bacungan_meeting_landing_page.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-users w-4 h-4"></i> Meeting Landing Page
+                </a>
+                <a href="Midweek.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar w-4 h-4"></i> Midweek Meeting
+                </a>
+                <a href="Weekend_Meeting.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-sun w-4 h-4"></i> Weekend Meeting
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Dark Mode - persists across pages
+    (function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const html = document.documentElement;
+
+        // Restore saved theme or follow system
+        const saved = localStorage.getItem('bacungan-theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        function updateIcon() {
+            const icon = themeToggle.querySelector('i');
+            if (html.classList.contains('dark')) {
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('bacungan-theme', 'dark');
+            } else {
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('bacungan-theme', 'light');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            updateIcon();
+        });
+        updateIcon();
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Highlight current page in nav
+        const currentPath = window.location.pathname.split('/').pop();
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('text-white', 'bg-slate-800');
+                link.classList.remove('text-slate-300');
+            }
+        });
+    })();
+</script>
+<!-- END SHARED NAVIGATION -->

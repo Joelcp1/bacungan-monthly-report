@@ -1,974 +1,225 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bacungan Congregation - Weekend Meeting Schedule</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Weekend Meeting - Bacungan Congregation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        navy: {
-                            800: '#0f2042',
-                            900: '#0a152d',
-                            950: '#050b18',
-                        },
-                        maroon: {
-                            800: '#58111a',
-                            900: '#3f0a11',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(60px, -40px) scale(1.15); }
+            100% { transform: translate(0, 0) scale(1); }
         }
-        .strikethrough-red {
-            text-decoration: line-through;
-            text-decoration-color: #ef4444;
-            text-decoration-thickness: 2px;
-            color: #dc2626;
+        @keyframes drift-reverse {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(-70px, 50px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
         }
-        .dark .strikethrough-red {
-            text-decoration-color: #f87171;
-            color: #f87171;
+        .aurora-1 { animation: drift 14s ease-in-out infinite; }
+        .aurora-2 { animation: drift-reverse 18s ease-in-out infinite; }
+        .blueprint-grid {
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 44px 44px;
+            -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+            mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
         }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white; color: black; }
-            .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
-            table { width: 100% !important; border-collapse: collapse !important; }
+        @keyframes shine {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
+        .headline-shine {
+            background: linear-gradient(110deg, #FFFFFF 40%, #BFD4FF 50%, #FFFFFF 60%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 6s linear infinite;
+        }
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .fade-delay-1 { animation-delay: 0.15s; }
+        .fade-delay-2 { animation-delay: 0.3s; }
+        .fade-delay-3 { animation-delay: 0.45s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        .float-card { animation: float 5s ease-in-out infinite; }
+        .float-delay { animation-delay: 2.5s; }
+        .card-shine { position: relative; overflow: hidden; }
+        .card-shine::after {
+            content: '';
+            position: absolute; top: 0; left: -80%;
+            width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.7s ease;
+            pointer-events: none;
+        }
+        .card-shine:hover::after { left: 130%; }
+        @media (prefers-reduced-motion: reduce) { .aurora-1, .aurora-2, .headline-shine, .float-card, .fade-up { animation: none !important; } }
     </style>
 </head>
+<body class="min-h-screen text-white antialiased flex flex-col justify-between relative overflow-x-hidden">
 
-<body class="h-full flex flex-col min-h-screen text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-950 transition-colors duration-200">
-
-    <!-- Top Banner / Navigation -->
-    <header class="bg-gradient-to-r from-slate-900 via-navy-900 to-indigo-950 text-white shadow-lg no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Bacungan Congregation</h1>
-                    <p class="text-xs sm:text-sm text-blue-200 mt-1 flex flex-wrap items-center gap-2">
-                        <span class="font-medium">Weekend Meeting Schedule</span>
-                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span id="syncStatusBadge" class="text-emerald-300 text-xs font-semibold">Connecting...</span>
-                        <span id="lastSyncedBadge" class="text-slate-400 text-[11px]"></span>
-                    </p>
+<!-- Shared Navigation -->
+<nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-sm border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
-
-                <!-- Action Controls -->
-                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <button onclick="toggleDarkMode()" id="darkModeBtn" title="Toggle Light/Dark Theme" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-semibold rounded-lg transition-all border border-slate-700 shadow-sm active:scale-95 cursor-pointer">
-                        <span id="themeIcon">🌙</span>
-                        <span id="themeText">Dark Mode</span>
-                    </button>
-
-                    <button onclick="fetchSheetData(true)" id="refreshBtn" title="Sync now with Google Sheet" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all shadow-sm border border-blue-400/30 active:scale-95 cursor-pointer">
-                        <svg id="refreshSpinner" class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Sync Now</span>
-                    </button>
-
-                    <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all border border-slate-700 shadow-sm active:scale-95 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        <span>Print</span>
-                    </button>
-                </div>
+                <span class="font-bold text-xl tracking-tight text-white">Bacungan <span class="text-blue-400">Congregation</span></span>
             </div>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
-
-        <!-- Toast Notification -->
-        <div id="toastNotification" class="hidden transform transition-all duration-300 rounded-xl p-4 shadow-sm border text-sm flex items-center justify-between no-print">
-            <div class="flex items-center gap-3">
-                <span id="toastIcon"></span>
-                <span id="toastMessage" class="font-medium"></span>
+            <div class="hidden md:flex items-center space-x-1">
+                <a href="index.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-house w-4 h-4"></i> <span class="hidden sm:inline">Main Page</span>
+                </a>
+                <a href="monthly_report.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> <span class="hidden sm:inline">Monthly Report</span>
+                </a>
+                <a href="meeting_service.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> <span class="hidden sm:inline">Meeting Service</span>
+                </a>
+                <a href="bacungan_meeting_landing_page.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-users w-4 h-4"></i> <span class="hidden sm:inline">Meeting Landing</span>
+                </a>
+                <a href="Midweek.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-calendar w-4 h-4"></i> <span class="hidden sm:inline">Midweek</span>
+                </a>
+                <a href="Weekend_Meeting.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-sun w-4 h-4"></i> <span class="hidden sm:inline">Weekend</span>
+                </a>
             </div>
-            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600 p-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-
-        <!-- Next Meeting Banner Card -->
-        <section id="nextMeetingCard" class="bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-md no-print border border-indigo-700/50">
-            <!-- Dynamic Injection via JavaScript -->
-        </section>
-
-        <!-- Navigation Tabs & Search Controls -->
-        <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 border border-slate-200/80 dark:border-slate-800 transition-colors no-print">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-                <!-- View Selector Tabs -->
-                <div class="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                    <button onclick="switchView('table')" id="tab-table" class="view-tab px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md bg-white dark:bg-slate-700 text-indigo-950 dark:text-white shadow-sm transition-all cursor-pointer">
-                        📊 Sheet Table
-                    </button>
-                    <button onclick="switchView('cards')" id="tab-cards" class="view-tab px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer">
-                        🎴 Card View
-                    </button>
-                    <button onclick="switchView('brothers')" id="tab-brothers" class="view-tab px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer">
-                        👤 Brothers
-                    </button>
-                    <button onclick="switchView('kiosk')" id="tab-kiosk" class="view-tab px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer">
-                        📺 TV / Display
-                    </button>
-                </div>
-
-                <!-- Search & Filters -->
-                <div class="flex flex-wrap items-center gap-3 relative" id="searchContainer">
-                    <!-- Search Input with Autocomplete Dropdown -->
-                    <div class="relative flex-1 sm:w-64">
-                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input type="text" id="searchInput" oninput="handleSearchInput()" autocomplete="off" placeholder="Search speaker, brother, talk #..." class="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-slate-400 dark:placeholder-slate-500" />
-
-                        <!-- Dynamic Autocomplete Dropdown -->
-                        <div id="searchDropdown" class="hidden absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto overflow-x-hidden divide-y divide-slate-100 dark:divide-slate-700/50">
-                            <!-- Injected dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Date Filter -->
-                    <select id="dateFilter" onchange="filterSchedule()" class="px-3 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200 font-medium cursor-pointer">
-                        <option value="all">All Dates</option>
-                        <option value="upcoming">Upcoming Only</option>
-                        <option value="past">Past Meetings</option>
-                    </select>
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW 1: Spreadsheet Table View -->
-        <div id="view-table" class="view-content">
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="p-4 bg-slate-900 dark:bg-slate-950 text-white flex justify-between items-center no-print border-b border-slate-800">
-                    <h2 class="text-base sm:text-lg font-bold tracking-tight">Bacungan Congregation Weekend Meeting Schedule</h2>
-                    <span id="recordCount" class="text-xs bg-slate-800 px-2.5 py-1 rounded-full text-slate-300 font-mono">-- records</span>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
-                        <thead>
-                            <tr class="bg-navy-900 dark:bg-slate-950 text-white uppercase text-[11px] sm:text-xs font-bold tracking-wider divide-x divide-slate-800">
-                                <th class="py-3.5 px-4 text-center w-28 sm:w-36 bg-navy-950">Date</th>
-                                <th class="py-3.5 px-4 min-w-[160px]">Speaker</th>
-                                <th class="py-3.5 px-4 text-center w-20">Talk No.</th>
-                                <th class="py-3.5 px-4 min-w-[150px]">Chairman</th>
-                                <th class="py-3.5 px-4 min-w-[150px]">Conductor</th>
-                                <th class="py-3.5 px-4 min-w-[150px]">WT Reader</th>
-                                <th class="py-3.5 px-4 min-w-[150px]">Bible Reader</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scheduleTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
-                            <!-- Dynamic Table Rows -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 2: Visual Card Grid -->
-        <div id="view-cards" class="view-content hidden">
-            <div id="scheduleCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Cards injected dynamically -->
-            </div>
-        </div>
-
-        <!-- VIEW 3: Brothers Summary (Now fully implemented) -->
-        <div id="view-brothers" class="view-content hidden">
-            <div id="brothersSummaryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Brother stats injected dynamically -->
-            </div>
-        </div>
-
-        <!-- VIEW 4: High-Contrast TV / Kiosk Display -->
-        <div id="view-kiosk" class="view-content hidden">
-            <div class="bg-slate-950 rounded-2xl p-6 sm:p-10 text-white shadow-2xl border border-slate-800 min-h-[500px] flex flex-col justify-between">
-                <div class="border-b border-slate-800 pb-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs uppercase font-bold rounded-full">Kingdom Hall Display</span>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold mt-2 tracking-tight">Upcoming Weekend Meeting</h2>
-                    </div>
-                    <div class="text-slate-400 text-sm font-mono" id="kioskCurrentTime">--:--:--</div>
-                </div>
-
-                <div id="kioskCardContent" class="py-8">
-                    <!-- Kiosk content injected dynamically -->
-                </div>
-
-                <div class="border-t border-slate-800 pt-4 flex justify-between items-center text-xs text-slate-500">
-                    <span>Bacungan Congregation</span>
-                    <span id="kioskSyncStatus">Live Auto-Sync Active</span>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <footer class="mt-auto bg-slate-900 text-slate-400 border-t border-slate-800 text-xs py-6 no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div>
-                <span class="font-semibold text-slate-200">Bacungan Congregation Weekend Schedule</span>
-                <span class="block sm:inline sm:ml-2 text-slate-500">Connected to Google Sheets</span>
-            </div>
-            <div class="text-slate-500 text-[11px]">
-                Built for Kingdom Hall Display & Mobile Access
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // =====================================================================
-        //  GOOGLE SHEET CONNECTION
-        //  Source: https://docs.google.com/spreadsheets/d/<ID>/edit?gid=<GID>
-        //  Data is pulled live via the gviz JSON endpoint (no API key needed).
-        //  Column positions are detected dynamically from the header row, so
-        //  the sheet can be re-ordered or extended without touching this code.
-        // =====================================================================
-        const GOOGLE_SHEET_ID = '1e42ebqgNOi6DR-XH-V0xWIeqMTjSKpSXrsKVz9TRBjc';
-        const GOOGLE_SHEET_GID = '65119291';
-        const AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000; // re-sync every 5 minutes
-
-        // Default Fallback Schedule Data (used only while offline on first load)
-        const DEFAULT_SCHEDULE = [
-            { date: '19-Jul-2026', speaker: 'Circuit Overseer', talkNo: '-', chairman: 'Noel Evangelista', conductor: 'Joel Parrenas', wtReader: 'No Par. Reading', bibleReader: 'Daniel Garcia' },
-            { date: '26-Jul-2026', speaker: 'Joel Parrenas', talkNo: '185', chairman: 'Khendrik Valencia', conductor: 'Noel Evangelista', wtReader: 'Daniel Garcia', bibleReader: 'Jonathan Reyes' },
-            { date: '2-Aug-2026', speaker: 'Khendrik Valencia', talkNo: '175', chairman: 'Romeo Dagacay', conductor: 'Joel Parrenas', wtReader: 'Gideon Libres', bibleReader: 'Benjie Villianueva' },
-            { date: '9-Aug-2026', speaker: 'Invited Speaker', talkNo: '', chairman: 'Noel Evangelista', conductor: 'Joel Parrenas', wtReader: 'Bryan Llado', bibleReader: 'Daniel Garcia' },
-            { date: '16-Aug-2026', speaker: 'Jehoram Belmonte', talkNo: '17', chairman: 'Jonathan Reyes', conductor: 'Joel Parrenas', wtReader: 'Job Bandola', bibleReader: 'Michael Serato' },
-            { date: '23-Aug-2026', speaker: 'Welmer Bolhano', talkNo: '51', chairman: 'Jehoram Belmonte', conductor: 'Joel Parrenas', wtReader: 'Nemuel Serato', bibleReader: 'Noel evangelista' },
-            { date: '30-Aug-2026', speaker: 'Joel Parrenas', talkNo: '46', chairman: 'Romeo Dagacay', conductor: 'Noel Evangelista', wtReader: 'Benjie Villianueva', bibleReader: 'Bryan Llado' },
-            { date: '6-Sep-2026', speaker: 'Khendrik Valencia', talkNo: '121', chairman: 'Noel Evangelista', conductor: 'Joel Parrenas', wtReader: 'Daniel Garcia', bibleReader: 'Gideon Libres' },
-            { date: '13-Sep-2026', speaker: 'Noel Evangelista', talkNo: '24', chairman: 'Khendrik Valencia', conductor: 'Joel Parrenas', wtReader: 'Job Bandola', bibleReader: 'Jehoram Belmonte' },
-            { date: '20-Sep-2026', speaker: 'Joel C. Parrenas', talkNo: '54', chairman: 'Jonathan Reyes', conductor: 'Noel Evangelista', wtReader: 'Micheal Serato', bibleReader: 'Khendrik Valencia' },
-            { date: '27-Sep-2026', speaker: 'Jehoram Belmonte', talkNo: '75', chairman: 'Romeo Dagacay', conductor: 'Joel Parrenas', wtReader: 'Romeo Dagacay', bibleReader: 'Nemuel Serato' },
-            { date: '4-Oct-2026', speaker: 'Romeo Dagacay', talkNo: '6', chairman: 'Noel Evangelista', conductor: 'Joel Parrenas', wtReader: 'Bryan Llado', bibleReader: 'Benjie Villianueva' },
-            { date: '11-Oct-2026', speaker: 'Jonathan Reyes', talkNo: '20', chairman: 'Khendrik Valencia', conductor: 'Joel Parrenas', wtReader: 'Gideon Libres', bibleReader: 'Daniel Garcia' },
-            { date: '18-Oct-2026', speaker: 'Khendric Valencia', talkNo: '26', chairman: 'Jonathan Reyes', conductor: 'Joel Parrenas', wtReader: 'Romeo Dagacay', bibleReader: 'Job Bandola' },
-            { date: '25-Oct-2026', speaker: 'Noel Evangelista', talkNo: '60', chairman: 'Jehoram Belmonte', conductor: 'Joel Parrenas', wtReader: 'Benjie Villianueva', bibleReader: 'Bryan Llado' }
-        ];
-
-        let scheduleData = [];
-        let filteredData = [];
-        let uniqueNames = [];      // for dynamic autocomplete
-        let columnMap = {};        // dynamic column index map from the sheet header
-        let lastSyncTime = null;   // Date of last successful sheet sync
-
-        // ---------------------------------------------------------------
-        // Utilities
-        // ---------------------------------------------------------------
-
-        function escapeHtml(str) {
-            return String(str ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function highlightText(text, query) {
-            if (text === null || text === undefined || text === '') return '-';
-            const safe = escapeHtml(text);
-            if (!query) return safe;
-
-            // Escape query characters to prevent regex errors
-            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(${escapedQuery})`, 'gi');
-
-            return safe.replace(regex, '<mark class="bg-amber-200 text-amber-900 dark:bg-amber-500/40 dark:text-amber-100 rounded-sm px-0.5">$1</mark>');
-        }
-
-        // Parse the many shapes a sheet date can arrive in:
-        //  - "Date(2026,6,19)"  (raw gviz date value)
-        //  - "19-Jul-2026"      (formatted value)
-        //  - ISO strings
-        function parseSheetDate(raw) {
-            if (!raw) return null;
-
-            const dateFnMatch = String(raw).match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
-            if (dateFnMatch) {
-                return new Date(+dateFnMatch[1], +dateFnMatch[2], +dateFnMatch[3], 23, 59, 59);
-            }
-
-            const parts = String(raw).trim().split(/[- ]+/);
-            if (parts.length >= 3) {
-                const months = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
-                const day = parseInt(parts[0], 10);
-                const month = months[String(parts[1]).substring(0, 3).toLowerCase()];
-                const year = parseInt(parts[2], 10);
-                if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-                    return new Date(year, month, day, 23, 59, 59);
-                }
-            }
-
-            const parsed = new Date(raw);
-            return isNaN(parsed.getTime()) ? null : parsed;
-        }
-
-        function parseDateString(dateStr) {
-            return parseSheetDate(dateStr) || new Date(0);
-        }
-
-        function isPastDate(dateStr) {
-            const meetingDate = parseSheetDate(dateStr);
-            if (!meetingDate) return false;
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            return meetingDate < today;
-        }
-
-        function formatDateDisplay(dateStr) {
-            const d = parseSheetDate(dateStr);
-            if (!d) return dateStr;
-            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
-        }
-
-        // ---------------------------------------------------------------
-        // Theme
-        // ---------------------------------------------------------------
-
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const isDark = html.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeUI(isDark);
-        }
-
-        function updateThemeUI(isDark) {
-            const icon = document.getElementById('themeIcon');
-            const text = document.getElementById('themeText');
-            if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-            if (text) text.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-        }
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
-            if (isDark) document.documentElement.classList.add('dark');
-            else document.documentElement.classList.remove('dark');
-            updateThemeUI(isDark);
-        }
-
-        // ---------------------------------------------------------------
-        // Search / Autocomplete
-        // ---------------------------------------------------------------
-
-        function extractUniqueNames() {
-            const names = new Set();
-            scheduleData.forEach(item => {
-                const roles = [item.speaker, item.chairman, item.conductor, item.wtReader, item.bibleReader];
-                roles.forEach(name => {
-                    if (!name) return;
-                    const lower = name.toLowerCase();
-                    if (lower === '-' || lower.includes('circuit overseer') || lower.includes('invited')) return;
-                    names.add(name.trim());
-                });
-            });
-            uniqueNames = Array.from(names).sort();
-        }
-
-        function handleSearchInput() {
-            filterSchedule(); // Filter the main table/views immediately
-
-            const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-            const dropdown = document.getElementById('searchDropdown');
-
-            if (!query || !dropdown) {
-                if (dropdown) dropdown.classList.add('hidden');
-                return;
-            }
-
-            const matchedNames = uniqueNames.filter(name => name.toLowerCase().includes(query));
-
-            if (matchedNames.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-
-            // Populate dropdown using data attributes + event delegation.
-            // (No inline onclick with raw names — names with apostrophes are safe.)
-            dropdown.innerHTML = matchedNames.map((name, i) => `
-                <button type="button" data-suggestion-index="${i}" class="suggestion-item w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-slate-700/80 transition-colors">
-                    ${highlightText(name, query)}
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
                 </button>
-            `).join('');
-            dropdown.dataset.suggestions = JSON.stringify(matchedNames);
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-t border-slate-700 pb-4">
+            <div class="px-4 space-y-2">
+                <a href="index.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-house w-4 h-4"></i> Main Page</a>
+                <a href="monthly_report.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-clipboard-check w-4 h-4"></i> Monthly Report</a>
+                <a href="meeting_service.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-days w-4 h-4"></i> Meeting Service</a>
+                <a href="bacungan_meeting_landing_page.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-users w-4 h-4"></i> Meeting Landing Page</a>
+                <a href="Midweek.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar w-4 h-4"></i> Midweek Meeting</a>
+                <a href="Weekend_Meeting.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-sun w-4 h-4"></i> Weekend Meeting</a>
+            </div>
+        </div>
+    </div>
+</nav>
 
-            dropdown.classList.remove('hidden');
-        }
+<main class="relative min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden flex-grow">
+    <!-- Animated aurora glows -->
+    <div class="aurora-1 absolute -top-48 -left-48 w-[32rem] h-[32rem] bg-blue-400 opacity-30 rounded-full blur-3xl pointer-events-none z-0"></div>
+    <div class="aurora-2 absolute -bottom-48 -right-48 w-[32rem] h-[32rem] bg-cyan-400 opacity-20 rounded-full blur-3xl pointer-events-none z-0"></div>
+    <div class="aurora-1 absolute top-1/3 right-0 w-96 h-96 bg-indigo-500 opacity-25 rounded-full blur-3xl pointer-events-none z-0"></div>
 
-        function selectSearchSuggestion(name) {
-            document.getElementById('searchInput').value = name;
-            document.getElementById('searchDropdown').classList.add('hidden');
-            filterSchedule(); // Re-filter with the exact name selected
-        }
+    <!-- Blueprint grid overlay -->
+    <div class="blueprint-grid absolute inset-0 pointer-events-none z-0"></div>
 
-        // ---------------------------------------------------------------
-        // Google Sheets live sync
-        // ---------------------------------------------------------------
+    <div class="max-w-4xl w-full mx-auto text-center space-y-10 relative z-10">
+        <!-- Hero -->
+        <div class="space-y-5 fade-up">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-xs font-bold tracking-widest uppercase text-blue-100">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Weekend Schedule
+            </span>
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+                <span class="headline-shine">Weekend Meeting</span>
+            </h1>
+            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-100/90 max-w-3xl mx-auto leading-relaxed">
+                Weekend congregation meeting schedule and public talk assignments.
+            </p>
+        </div>
 
-        // Detect which sheet column holds which field by matching the
-        // header labels (falling back to the first data row's values when
-        // gviz doesn't expose labels), so the code keeps working if columns
-        // are moved, inserted or renamed slightly.
-        function buildColumnMap(cols, firstRowCells) {
-            const map = {};
-            const seen = {};
-
-            const normalize = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
-            const hasLabels = cols.some(col => col.label);
-
-            const classify = (label, idx) => {
-                if (!label) return;
-                if (!seen.date && label.includes('date')) { map.date = idx; seen.date = true; }
-                else if (!seen.speaker && label.includes('speaker')) { map.speaker = idx; seen.speaker = true; }
-                else if (!seen.talkNo && label.includes('talk')) { map.talkNo = idx; seen.talkNo = true; }
-                else if (!seen.chairman && label.includes('chairman')) { map.chairman = idx; seen.chairman = true; }
-                else if (!seen.conductor && label.includes('conductor')) { map.conductor = idx; seen.conductor = true; }
-                else if (!seen.wtReader && (label.includes('wtreader') || label === 'reader')) { map.wtReader = idx; seen.wtReader = true; }
-                else if (!seen.bibleReader && label.includes('biblereader')) { map.bibleReader = idx; seen.bibleReader = true; }
-            };
-
-            if (hasLabels) {
-                cols.forEach((col, idx) => classify(normalize(col.label), idx));
-            } else if (firstRowCells) {
-                // Fallback: treat the first row's values as header text
-                firstRowCells.forEach((cell, idx) => {
-                    if (cell) classify(normalize(cell.f || cell.v), idx);
-                });
-            }
-
-            return map;
-        }
-
-        // Google's gviz endpoint does not send CORS headers, so fetch() fails
-        // when the page runs from disk. Loading it as a <script> (JSONP-style,
-        // using gviz's responseHandler option) works from any origin.
-        function fetchSheetDataViaJsonp() {
-            return new Promise((resolve, reject) => {
-                const handlerName = `__gvizCallback_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-                const timeout = setTimeout(() => {
-                    cleanup();
-                    reject(new Error('Sheet request timed out'));
-                }, 15000);
-
-                function cleanup() {
-                    clearTimeout(timeout);
-                    delete window[handlerName];
-                    document.getElementById(scriptId)?.remove();
-                }
-
-                const scriptId = `gviz-script-${handlerName}`;
-
-                window[handlerName] = (json) => {
-                    cleanup();
-                    resolve(json);
-                };
-
-                const script = document.createElement('script');
-                script.id = scriptId;
-                script.src = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq` +
-                    `?tqx=responseHandler:${handlerName};out:json&gid=${GOOGLE_SHEET_GID}&t=${Date.now()}`;
-                script.onerror = () => {
-                    cleanup();
-                    reject(new Error('Network error while loading sheet'));
-                };
-                document.body.appendChild(script);
-            });
-        }
-
-        async function fetchSheetData(manualSync = false) {
-            const spinner = document.getElementById('refreshSpinner');
-            const statusBadge = document.getElementById('syncStatusBadge');
-            const kioskStatus = document.getElementById('kioskSyncStatus');
-
-            if (spinner) spinner.classList.add('animate-spin');
-            if (statusBadge) {
-                statusBadge.textContent = 'Syncing...';
-                statusBadge.className = 'text-amber-300 text-xs font-semibold';
-            }
-
-            try {
-                const json = await fetchSheetDataViaJsonp();
-
-                if (!json || json.status === 'error' || !json.table || !json.table.rows) {
-                    throw new Error('Invalid sheet structure or restricted sheet');
-                }
-
-                // Dynamically map columns from the header row.
-                // gviz sometimes returns empty labels; then use the first
-                // data row's cell values as header hints.
-                columnMap = buildColumnMap(json.table.cols || [], (json.table.rows[0] || {}).c || []);
-                if (columnMap.date === undefined || columnMap.speaker === undefined) {
-                    throw new Error('Could not locate Date/Speaker columns in sheet');
-                }
-
-                const rows = json.table.rows;
-                // When labels were empty, row 0 was the header row — skip it
-                const startRow = (json.table.cols || []).some(col => col.label) ? 0 : 1;
-                const parsedData = [];
-
-                rows.forEach((row, rowIdx) => {
-                    if (rowIdx < startRow) return;
-                    const cells = row.c || [];
-
-                    const getValue = (idx) => {
-                        if (idx === undefined || !cells[idx] || cells[idx].v === null || cells[idx].v === undefined) return '';
-                        return (cells[idx].f || cells[idx].v).toString().trim();
-                    };
-
-                    const date = getValue(columnMap.date);
-                    const speaker = getValue(columnMap.speaker);
-
-                    // Skip header/blank rows
-                    if (!date || /weekend meeting schedule/i.test(date) || date.toLowerCase() === 'date') return;
-                    if (!speaker && !date) return;
-
-                    // Prefer the sheet's formatted date for display
-                    const rawDateCell = cells[columnMap.date];
-                    const displayDate = (rawDateCell && rawDateCell.f) ? rawDateCell.f : date;
-
-                    // Alternate / special-event block (Elder/MS, Conductor, WT Reader, Bible Reader)
-                    // currently not displayed — values parsed but ignored.
-
-                    parsedData.push({
-                        date: displayDate,
-                        speaker: speaker,
-                        talkNo: getValue(columnMap.talkNo),
-                        chairman: getValue(columnMap.chairman),
-                        conductor: getValue(columnMap.conductor),
-                        wtReader: getValue(columnMap.wtReader),
-                        bibleReader: getValue(columnMap.bibleReader)
-                    });
-                });
-
-                if (parsedData.length === 0) throw new Error('No rows parsed from sheet');
-
-                scheduleData = parsedData;
-                lastSyncTime = new Date();
-
-                if (statusBadge) {
-                    statusBadge.textContent = 'Live Auto-Sync Active';
-                    statusBadge.className = 'text-emerald-300 text-xs font-semibold';
-                }
-                if (kioskStatus) kioskStatus.textContent = 'Live Auto-Sync Active';
-                if (manualSync) showToast('Schedule synced successfully with Google Sheets!', 'success');
-            } catch (err) {
-                console.warn('Google Sheet fetch error, fallback data active:', err);
-                if (scheduleData.length === 0) {
-                    scheduleData = [...DEFAULT_SCHEDULE];
-                }
-                if (statusBadge) {
-                    statusBadge.textContent = 'Offline Mode (Local Data)';
-                    statusBadge.className = 'text-slate-300 text-xs font-semibold';
-                }
-                if (kioskStatus) kioskStatus.textContent = 'Offline Mode (Local Data)';
-                if (manualSync) showToast('Could not reach Google Sheets — using offline schedule data.', 'info');
-            } finally {
-                if (spinner) spinner.classList.remove('animate-spin');
-                updateLastSyncedBadge();
-                renderAllViews();
-            }
-        }
-
-        function updateLastSyncedBadge() {
-            const badge = document.getElementById('lastSyncedBadge');
-            if (!badge) return;
-            badge.textContent = lastSyncTime
-                ? `• Last synced ${lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                : '';
-        }
-
-        // ---------------------------------------------------------------
-        // Renderers
-        // ---------------------------------------------------------------
-
-        function renderTable() {
-            const tbody = document.getElementById('scheduleTableBody');
-            const countBadge = document.getElementById('recordCount');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-            if (countBadge) countBadge.textContent = `${filteredData.length} entries`;
-
-            if (filteredData.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-slate-400 dark:text-slate-500 font-normal">
-                            No matching schedule parts found.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            const currentQuery = (document.getElementById('searchInput')?.value || '').trim();
-            const h = (txt) => highlightText(txt, currentQuery); // Helper to apply highlight
-
-            filteredData.forEach(row => {
-                const past = isPastDate(row.date);
-                const tr = document.createElement('tr');
-
-                tr.className = `transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60 divide-x divide-slate-100 dark:divide-slate-800 ${
-                    past ? 'bg-slate-50/70 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400' : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100'
-                }`;
-
-                const isCO = row.speaker.toLowerCase().includes('circuit overseer');
-
-                tr.innerHTML = `
-                    <td class="py-3.5 px-4 text-center font-semibold font-mono text-xs ${past ? 'strikethrough-red' : 'text-slate-900 dark:text-slate-100'}">
-                        ${h(formatDateDisplay(row.date))}
-                    </td>
-                    <td class="py-3.5 px-4">
-                        ${isCO ?
-                            `<span class="inline-block bg-maroon-900 text-white font-bold px-2.5 py-1 rounded italic text-xs ${past ? 'line-through opacity-70' : ''}">
-                                ${h(row.speaker)}
-                            </span>` :
-                            `<span class="font-bold ${past ? 'strikethrough-red font-normal' : 'text-slate-900 dark:text-slate-100'}">${h(row.speaker)}</span>`
-                        }
-                    </td>
-                    <td class="py-3.5 px-4 text-center font-bold text-slate-700 dark:text-slate-300">
-                        ${h(row.talkNo || '-')}
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-medium">${h(row.chairman || '-')}</td>
-                    <td class="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-medium">${h(row.conductor || '-')}</td>
-                    <td class="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-medium">${h(row.wtReader || '-')}</td>
-                    <td class="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-medium">${h(row.bibleReader || '-')}</td>
-                `;
-
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderCards() {
-            const grid = document.getElementById('scheduleCardsGrid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            const currentQuery = (document.getElementById('searchInput')?.value || '').trim();
-            const h = (txt) => highlightText(txt, currentQuery);
-
-            filteredData.forEach(item => {
-                const past = isPastDate(item.date);
-                const card = document.createElement('div');
-                card.className = `bg-white dark:bg-slate-900 rounded-xl p-5 border shadow-sm transition-all hover:shadow-md ${
-                    past ? 'border-slate-200 dark:border-slate-800 opacity-60 bg-slate-50 dark:bg-slate-900/50' : 'border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-500'
-                }`;
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
-                        <span class="font-mono font-bold text-sm ${past ? 'strikethrough-red' : 'text-indigo-900 dark:text-indigo-300'}">
-                            ${h(formatDateDisplay(item.date))}
-                        </span>
-                        <span class="flex items-center gap-1.5">
-                            ${item.talkNo ? `<span class="px-2.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-full border border-indigo-200/50 dark:border-indigo-800/50">Talk #${h(item.talkNo)}</span>` : ''}
-                        </span>
+        <!-- Weekend content placeholder -->
+        <div class="pt-4 max-w-2xl mx-auto w-full relative z-30 fade-up fade-delay-1">
+            <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl text-left">
+                <h2 class="text-xl font-bold text-white mb-4">Weekend Meeting Details</h2>
+                <p class="text-blue-200/90 text-sm mb-4">
+                    Weekend meetings include public talks, Watchtower study, and congregation Bible study.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Day</p>
+                        <p class="text-white font-semibold">Saturday & Sunday</p>
                     </div>
-                    <div class="space-y-2 text-xs sm:text-sm">
-                        <div class="flex justify-between items-start">
-                            <span class="text-slate-400 dark:text-slate-500 text-xs">Speaker:</span>
-                            <span class="font-bold text-right text-slate-900 dark:text-slate-100">${h(item.speaker)}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400 dark:text-slate-500 text-xs">Chairman:</span>
-                            <span class="font-medium text-slate-800 dark:text-slate-200">${h(item.chairman || '-')}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400 dark:text-slate-500 text-xs">Conductor:</span>
-                            <span class="font-medium text-slate-800 dark:text-slate-200">${h(item.conductor || '-')}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400 dark:text-slate-500 text-xs">WT Reader:</span>
-                            <span class="font-medium text-slate-800 dark:text-slate-200">${h(item.wtReader || '-')}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400 dark:text-slate-500 text-xs">Bible Reader:</span>
-                            <span class="font-medium text-slate-800 dark:text-slate-200">${h(item.bibleReader || '-')}</span>
-                        </div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Time</p>
+                        <p class="text-white font-semibold">Various</p>
                     </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderBrothersSummary() {
-            const container = document.getElementById('brothersSummaryGrid');
-            if (!container) return;
-
-            const counts = {};
-            const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-
-            // Calculate totals using filteredData so date filters apply, but limit to specific names!
-            filteredData.forEach(row => {
-                const addRole = (name, role) => {
-                    if (!name || name === '-' || name.toLowerCase().includes('invited') || name.toLowerCase().includes('circuit')) return;
-                    const cleanName = name.trim();
-
-                    // If a search is active, ONLY process names that match it!
-                    if (query && !cleanName.toLowerCase().includes(query)) return;
-
-                    if (!counts[cleanName]) {
-                        counts[cleanName] = { speaker: 0, chairman: 0, conductor: 0, wtReader: 0, bibleReader: 0, total: 0 };
-                    }
-                    counts[cleanName][role]++;
-                    counts[cleanName].total++;
-                };
-
-                addRole(row.speaker, 'speaker');
-                addRole(row.chairman, 'chairman');
-                addRole(row.conductor, 'conductor');
-                addRole(row.wtReader, 'wtReader');
-                addRole(row.bibleReader, 'bibleReader');
-            });
-
-            container.innerHTML = '';
-            const sortedBrothers = Object.keys(counts).sort((a, b) => counts[b].total - counts[a].total);
-
-            if (sortedBrothers.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-slate-400 dark:text-slate-500 font-normal bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                        No brother statistics found matching your current search/filters.
-                    </div>`;
-                return;
-            }
-
-            sortedBrothers.forEach(brother => {
-                const data = counts[brother];
-                const card = document.createElement('div');
-                card.className = 'bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-500 shadow-sm transition-all';
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-                        <h3 class="font-bold text-slate-900 dark:text-slate-100 text-base">${highlightText(brother, query)}</h3>
-                        <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 font-extrabold text-xs rounded-full border border-indigo-200 dark:border-indigo-800">${data.total} Parts</span>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Location</p>
+                        <p class="text-white font-semibold">Kingdom Hall</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                        <div class="flex justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded"><span>Speaker:</span> <span class="font-bold text-slate-800 dark:text-slate-200">${data.speaker}</span></div>
-                        <div class="flex justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded"><span>Chairman:</span> <span class="font-bold text-slate-800 dark:text-slate-200">${data.chairman}</span></div>
-                        <div class="flex justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded"><span>Conductor:</span> <span class="font-bold text-slate-800 dark:text-slate-200">${data.conductor}</span></div>
-                        <div class="flex justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded"><span>WT Reader:</span> <span class="font-bold text-slate-800 dark:text-slate-200">${data.wtReader}</span></div>
-                        <div class="col-span-2 flex justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded border border-slate-100 dark:border-slate-800"><span>Bible Reader:</span> <span class="font-bold text-slate-800 dark:text-slate-200">${data.bibleReader}</span></div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Chairman</p>
+                        <p class="text-white font-semibold">TBA</p>
                     </div>
-                `;
-                container.appendChild(card);
-            });
+                </div>
+            </div>
+        </div>
+
+        <div class="fade-up fade-delay-3 relative z-10">
+            <a href="bacungan_meeting_landing_page.html" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white font-bold text-base border border-white/30 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group">
+                <i class="fa-solid fa-arrow-left text-blue-200 group-hover:-translate-x-1 transition-transform duration-300"></i>
+                Back to Meeting Schedules
+            </a>
+        </div>
+    </div>
+
+    <div class="text-center text-xs text-blue-200/70 font-bold mt-12 mb-2 relative z-10">
+        Bacungan Board Schedule Navigator &bull; Weekend Meeting
+    </div>
+</main>
+
+<script>
+    // Dark mode persistence
+    (function() {
+        const btn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const saved = localStorage.getItem('bacungan-theme');
+        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
         }
+        btn.addEventListener('click', () => {
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('bacungan-theme', isDark ? 'dark' : 'light');
+        });
+    })();
 
-        function renderNextMeeting() {
-            const banner = document.getElementById('nextMeetingCard');
-            const kioskContent = document.getElementById('kioskCardContent');
+    // Mobile menu
+    (function() {
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+        menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.add('hidden')));
+    })();
 
-            // Sort by real parsed date so "next" is accurate regardless of sheet order
-            const sorted = [...scheduleData].sort((a, b) => parseDateString(a.date) - parseDateString(b.date));
-            const upcoming = sorted.find(item => !isPastDate(item.date)) || sorted[0];
-            if (!upcoming) return;
-
-            if (banner) {
-                banner.innerHTML = `
-                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                        <div>
-                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-800/80 text-indigo-200 text-xs font-semibold uppercase tracking-wider mb-2 border border-indigo-600/40">
-                                Next Upcoming Weekend Meeting
-                            </div>
-                            <h2 class="text-xl sm:text-2xl font-bold">${escapeHtml(formatDateDisplay(upcoming.date))}</h2>
-                            <p class="text-indigo-200 text-sm mt-0.5">Speaker: <strong class="text-white">${escapeHtml(upcoming.speaker)}</strong> ${upcoming.talkNo ? `(Talk #${escapeHtml(upcoming.talkNo)})` : ''}</p>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-950/40 p-3.5 rounded-xl border border-white/10">
-                            <div>
-                                <span class="block text-indigo-300 text-[11px]">Chairman</span>
-                                <span class="font-semibold text-white">${escapeHtml(upcoming.chairman || '-')}</span>
-                            </div>
-                            <div>
-                                <span class="block text-indigo-300 text-[11px]">Conductor</span>
-                                <span class="font-semibold text-white">${escapeHtml(upcoming.conductor || '-')}</span>
-                            </div>
-                            <div>
-                                <span class="block text-indigo-300 text-[11px]">WT Reader</span>
-                                <span class="font-semibold text-white">${escapeHtml(upcoming.wtReader || '-')}</span>
-                            </div>
-                            <div>
-                                <span class="block text-indigo-300 text-[11px]">Bible Reader</span>
-                                <span class="font-semibold text-white">${escapeHtml(upcoming.bibleReader || '-')}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+    // Highlight current page
+    (function() {
+        const path = window.location.pathname.split('/').pop();
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === path) {
+                link.classList.add('text-white', 'bg-slate-800');
+                link.classList.remove('text-slate-300');
             }
+        });
+    })();
+</script>
 
-            if (kioskContent) {
-                kioskContent.innerHTML = `
-                    <div class="text-center space-y-6 max-w-2xl mx-auto">
-                        <div class="text-amber-400 font-mono text-2xl sm:text-3xl font-bold">${escapeHtml(formatDateDisplay(upcoming.date))}</div>
-                        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-inner">
-                            <span class="text-slate-400 text-xs uppercase font-semibold">Public Talk Speaker</span>
-                            <div class="text-3xl sm:text-5xl font-black text-white mt-1">${escapeHtml(upcoming.speaker)}</div>
-                            ${upcoming.talkNo ? `<div class="mt-2 inline-block px-3 py-1 bg-indigo-600 text-white font-bold text-sm rounded-md">Talk #${escapeHtml(upcoming.talkNo)}</div>` : ''}
-                        </div>
-                        <div class="grid grid-cols-2 gap-4 text-left">
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                                <div class="text-slate-400 text-xs">Chairman</div>
-                                <div class="text-lg font-bold text-slate-100">${escapeHtml(upcoming.chairman || '-')}</div>
-                            </div>
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                                <div class="text-slate-400 text-xs">Conductor</div>
-                                <div class="text-lg font-bold text-slate-100">${escapeHtml(upcoming.conductor || '-')}</div>
-                            </div>
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                                <div class="text-slate-400 text-xs">WT Reader</div>
-                                <div class="text-lg font-bold text-slate-100">${escapeHtml(upcoming.wtReader || '-')}</div>
-                            </div>
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
-                                <div class="text-slate-400 text-xs">Bible Reader</div>
-                                <div class="text-lg font-bold text-slate-100">${escapeHtml(upcoming.bibleReader || '-')}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function filterSchedule() {
-            const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-            const dateFilter = document.getElementById('dateFilter')?.value || 'all';
-
-            filteredData = scheduleData.filter(item => {
-                const haystack = [
-                    item.date, item.speaker, item.talkNo, item.chairman, item.conductor,
-                    item.wtReader, item.bibleReader
-                ].join(' ').toLowerCase();
-
-                const matchesQuery = haystack.includes(query);
-
-                const past = isPastDate(item.date);
-                let matchesDate = true;
-                if (dateFilter === 'upcoming') matchesDate = !past;
-                if (dateFilter === 'past') matchesDate = past;
-
-                return matchesQuery && matchesDate;
-            });
-
-            // Sort chronologically using the real parsed date
-            filteredData.sort((a, b) => parseDateString(a.date) - parseDateString(b.date));
-
-            // Update all visual representations of the data
-            renderTable();
-            renderCards();
-            renderBrothersSummary(); // Ensure the brothers view is updated when searching!
-        }
-
-        function switchView(viewName) {
-            document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.view-tab').forEach(el => {
-                el.classList.remove('bg-white', 'dark:bg-slate-700', 'text-indigo-950', 'dark:text-white', 'shadow-sm', 'font-semibold');
-                el.classList.add('text-slate-600', 'dark:text-slate-400', 'font-medium');
-            });
-
-            const activeTab = document.getElementById(`tab-${viewName}`);
-            const activeView = document.getElementById(`view-${viewName}`);
-
-            if (activeView && activeTab) {
-                activeView.classList.remove('hidden');
-                activeTab.classList.add('bg-white', 'dark:bg-slate-700', 'text-indigo-950', 'dark:text-white', 'shadow-sm', 'font-semibold');
-                activeTab.classList.remove('text-slate-600', 'dark:text-slate-400', 'font-medium');
-            }
-        }
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toastNotification');
-            const msg = document.getElementById('toastMessage');
-            const icon = document.getElementById('toastIcon');
-            if (!toast || !msg) return;
-
-            msg.textContent = message;
-
-            if (type === 'success') {
-                toast.className = 'rounded-xl p-4 shadow-sm border text-sm flex items-center justify-between no-print bg-emerald-50 dark:bg-emerald-950/80 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200';
-                icon.innerHTML = `<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-            } else {
-                toast.className = 'rounded-xl p-4 shadow-sm border text-sm flex items-center justify-between no-print bg-blue-50 dark:bg-blue-950/80 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200';
-                icon.innerHTML = `<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-            }
-
-            toast.classList.remove('hidden');
-            setTimeout(() => { hideToast(); }, 5000);
-        }
-
-        function hideToast() {
-            const toast = document.getElementById('toastNotification');
-            if (toast) toast.classList.add('hidden');
-        }
-
-        function updateClock() {
-            const timeEl = document.getElementById('kioskCurrentTime');
-            if (timeEl) {
-                const now = new Date();
-                timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            }
-        }
-
-        function renderAllViews() {
-            extractUniqueNames(); // Populate names array before filtering
-            filteredData = [...scheduleData];
-            filterSchedule(); // Calls table, card, and brothers updates
-            renderNextMeeting();
-        }
-
-        window.onload = function() {
-            initTheme();
-            scheduleData = [...DEFAULT_SCHEDULE];
-            renderAllViews();
-
-            fetchSheetData();
-
-            // Auto re-sync with the sheet so the page stays live
-            setInterval(() => fetchSheetData(false), AUTO_SYNC_INTERVAL_MS);
-
-            setInterval(updateClock, 1000);
-            updateClock();
-
-            // Click-outside closes the search dropdown
-            document.addEventListener('click', (e) => {
-                const container = document.getElementById('searchContainer');
-                const dropdown = document.getElementById('searchDropdown');
-                if (container && !container.contains(e.target) && dropdown) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-
-            // Event delegation for autocomplete suggestions (apostrophe-safe)
-            document.getElementById('searchDropdown')?.addEventListener('click', (e) => {
-                const btn = e.target.closest('.suggestion-item');
-                if (!btn) return;
-                try {
-                    const suggestions = JSON.parse(btn.parentElement.dataset.suggestions || '[]');
-                    const name = suggestions[parseInt(btn.dataset.suggestionIndex, 10)];
-                    if (name) selectSearchSuggestion(name);
-                } catch (err) { /* ignore malformed data */ }
-            });
-        };
-    </script>
 </body>
 </html>
