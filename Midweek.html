@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,218 +7,307 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @keyframes drift {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(60px, -40px) scale(1.15); }
-            100% { transform: translate(0, 0) scale(1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #226e93;
+            --primary-dark: #1e6c93;
+            --secondary: #3d484e;
+            --secondary-dark: #2a3a3e;
+            --accent: #d5c5a5;
+            --text: #212121;
+            --text-secondary: #666666;
+            --border: #e0e0e0;
+            --border-dark: #2a2a2a;
         }
-        @keyframes drift-reverse {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(-70px, 50px) scale(1.1); }
-            100% { transform: translate(0, 0) scale(1); }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6667;
         }
-        .aurora-1 { animation: drift 14s ease-in-out infinite; }
-        .aurora-2 { animation: drift-reverse 18s ease-in-out infinite; }
-        .blueprint-grid {
-            background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 44px 44px;
-            -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
-            mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 55%, transparent 100%);
+
+        .dark {
+            --primary: #1e6c93;
+            --primary-dark: #1a5a7a;
+            --secondary: #1a3a2e;
+            --secondary-dark: #15251f;
+            --accent: #3d424f;
+            --text: #f5f5f5;
+            --text-secondary: #b0b0b0;
+            --border: #1a1a1a;
         }
-        @keyframes shine {
-            0%   { background-position: -200% center; }
-            100% { background-position: 200% center; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        .headline-shine {
-            background: linear-gradient(110deg, #FFFFFF 40%, #BFD4FF 50%, #FFFFFF 60%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: shine 6s linear infinite;
+
+        .header {
+            background-color: var(--primary);
+            color: #ffffff;
+            padding: 20px 0;
+            border-bottom: 4px solid #1a1a1a;
         }
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(18px); }
-            to   { opacity: 1; transform: translateY(0); }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .fade-up { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .fade-delay-1 { animation-delay: 0.15s; }
-        .fade-delay-2 { animation-delay: 0.3s; }
-        .fade-delay-3 { animation-delay: 0.45s; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-6px); }
+
+        .logo {
+            font-family: 'Lato', sans-serif;
+            font-size: 24pt;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #ffffff;
         }
-        .float-card { animation: float 5s ease-in-out infinite; }
-        .float-delay { animation-delay: 2.5s; }
-        .card-shine { position: relative; overflow: hidden; }
-        .card-shine::after {
-            content: '';
-            position: absolute; top: 0; left: -80%;
-            width: 50%; height: 100%;
-            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.7s ease;
-            pointer-events: none;
+
+        .logo span {
+            color: #d5c5a5;
         }
-        .card-shine:hover::after { left: 130%; }
-        @media (prefers-reduced-motion: reduce) { .aurora-1, .aurora-2, .headline-shine, .float-card, .fade-up { animation: none !important; } }
+
+        .nav-menu {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--primary);
+            padding: 20px;
+            border-bottom: 4px solid #1a1a1a;
+        }
+
+        .mobile-menu.open { display: block; }
+
+        .mobile-menu a {
+            display: block;
+            padding: 10px 0;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18pt;
+        }
+
+        .hero {
+            background: url('https://images.unsplash.com/photo-150745232220-53522d6a1f03?auto=format&fit=crop&w=1200&q=80') no-repeat center center/cover;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 36pt;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .hero p {
+            font-size: 18pt;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .card h3 {
+            font-size: 18pt;
+            font-weight: 400;
+            color: #d5c5a5;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            font-size: 14pt;
+            color: var(--text-secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .hero { height: 300px; }
+            .hero h1 { font-size: 24pt; }
+            .hero p { font-size: 14pt; }
+            .container { padding: 10px; }
+            .mobile-menu-btn { display: block; }
+            .nav-menu { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 20pt; }
+            .hero p { font-size: 12pt; }
+        }
     </style>
 </head>
-<body class="min-h-screen text-white antialiased flex flex-col justify-between relative overflow-x-hidden">
+<body>
 
-<!-- Shared Navigation -->
-<nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-sm border-b border-slate-700">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <div class="flex-shrink-0 flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-book-open"></i>
-                </div>
-                <span class="font-bold text-xl tracking-tight text-white">Bacungan <span class="text-blue-400">Congregation</span></span>
-            </div>
-            <div class="hidden md:flex items-center space-x-1">
-                <a href="index.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-house w-4 h-4"></i> <span class="hidden sm:inline">Main Page</span>
-                </a>
-                <a href="monthly_report.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-check w-4 h-4"></i> <span class="hidden sm:inline">Monthly Report</span>
-                </a>
-                <a href="meeting_service.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-days w-4 h-4"></i> <span class="hidden sm:inline">Meeting Service</span>
-                </a>
-                <a href="bacungan_meeting_landing_page.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-users w-4 h-4"></i> <span class="hidden sm:inline">Meeting Landing</span>
-                </a>
-                <a href="Midweek.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-calendar w-4 h-4"></i> <span class="hidden sm:inline">Midweek</span>
-                </a>
-                <a href="Weekend_Meeting.html" class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    <i class="fa-solid fa-sun w-4 h-4"></i> <span class="hidden sm:inline">Weekend</span>
-                </a>
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="theme-toggle" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Toggle Dark Mode">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-t border-slate-700 pb-4">
-            <div class="px-4 space-y-2">
-                <a href="index.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-house w-4 h-4"></i> Main Page</a>
-                <a href="monthly_report.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-clipboard-check w-4 h-4"></i> Monthly Report</a>
-                <a href="meeting_service.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-days w-4 h-4"></i> Meeting Service</a>
-                <a href="bacungan_meeting_landing_page.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-users w-4 h-4"></i> Meeting Landing Page</a>
-                <a href="Midweek.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar w-4 h-4"></i> Midweek Meeting</a>
-                <a href="Weekend_Meeting.html" class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2"><i class="fa-solid fa-sun w-4 h-4"></i> Weekend Meeting</a>
-            </div>
-        </div>
+<div class="header">
+    <div class="container">
+        <div class="logo">Bacungan <span>Congregation</span></div>
+        <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
     </div>
-</nav>
+</div>
 
-<main class="relative min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden flex-grow">
-    <!-- Animated aurora glows -->
-    <div class="aurora-1 absolute -top-48 -left-48 w-[32rem] h-[32rem] bg-blue-400 opacity-30 rounded-full blur-3xl pointer-events-none z-0"></div>
-    <div class="aurora-2 absolute -bottom-48 -right-48 w-[32rem] h-[32rem] bg-cyan-400 opacity-20 rounded-full blur-3xl pointer-events-none z-0"></div>
-    <div class="aurora-1 absolute top-1/3 right-0 w-96 h-96 bg-indigo-500 opacity-25 rounded-full blur-3xl pointer-events-none z-0"></div>
-
-    <!-- Blueprint grid overlay -->
-    <div class="blueprint-grid absolute inset-0 pointer-events-none z-0"></div>
-
-    <div class="max-w-4xl w-full mx-auto text-center space-y-10 relative z-10">
-        <!-- Hero -->
-        <div class="space-y-5 fade-up">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-xs font-bold tracking-widest uppercase text-blue-100">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Midweek Schedule
-            </span>
-            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-                <span class="headline-shine">Midweek Meeting</h1>
-            <p class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-100/90 max-w-3xl mx-auto leading-relaxed">
-                Midweek congregation meeting schedule and assignments.
-            </p>
-        </div>
-
-        <!-- Midweek content placeholder -->
-        <div class="pt-4 max-w-2xl mx-auto w-full relative z-30 fade-up fade-delay-1">
-            <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl text-left">
-                <h2 class="text-xl font-bold text-white mb-4">Midweek Meeting Details</h2>
-                <p class="text-blue-200/90 text-sm mb-4">
-                    Midweek meetings are held for congregation Bible study and ministry training.
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
-                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Day</p>
-                        <p class="text-white font-semibold">Wednesday</p>
-                    </div>
-                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
-                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Time</p>
-                        <p class="text-white font-semibold">7:00 PM</p>
-                    </div>
-                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
-                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Location</p>
-                        <p class="text-white font-semibold">Kingdom Hall</p>
-                    </div>
-                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
-                        <p class="text-xs text-blue-300/70 uppercase font-bold mb-1">Conductor</p>
-                        <p class="text-white font-semibold">TBA</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="fade-up fade-delay-3 relative z-10">
-            <a href="bacungan_meeting_landing_page.html" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white font-bold text-base border border-white/30 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group">
-                <i class="fa-solid fa-arrow-left text-blue-200 group-hover:-translate-x-1 transition-transform duration-300"></i>
-                Back to Meeting Schedules
-            </a>
-        </div>
-    </div>
-
-    <div class="text-center text-xs text-blue-200/70 font-bold mt-12 mb-2 relative z-10">
-        Bacungan Board Schedule Navigator &bull; Midweek Meeting
-    </div>
-</main>
+<div class="mobile-menu" id="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="monthly_report.html">Monthly Report</a>
+    <a href="meeting_service.html">Field Ministry</a>
+    <a href="bacungan_meeting_landing_page.html">Meetings</a>
+    <a href="Midweek.html">Midweek Meeting</a>
+    <a href="Weekend_Meeting.html">Weekend Meeting</a>
+</div>
 
 <script>
-    // Dark mode persistence
-    (function() {
-        const btn = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-        const saved = localStorage.getItem('bacungan-theme');
-        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        }
-        btn.addEventListener('click', () => {
-            const isDark = html.classList.toggle('dark');
-            localStorage.setItem('bacungan-theme', isDark ? 'dark' : 'light');
-        });
-    })();
-
-    // Mobile menu
-    (function() {
-        const btn = document.getElementById('mobile-menu-btn');
+    function toggleMenu() {
         const menu = document.getElementById('mobile-menu');
-        btn.addEventListener('click', () => menu.classList.toggle('hidden'));
-        menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.add('hidden')));
-    })();
-
-    // Highlight current page
-    (function() {
-        const path = window.location.pathname.split('/').pop();
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === path) {
-                link.classList.add('text-white', 'bg-slate-800');
-                link.classList.remove('text-slate-300');
-            }
-        });
-    })();
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
 </script>
 
+<main>
+    <section class="hero">
+        <div class="container">
+            <h1>Midweek Meeting</h1>
+            <p>Bacungan Congregation</h1>
+        </section>
+
+        <div class="container">
+            <div class="grid">
+                <!-- Meeting Details Card -->
+                <div class="card">
+                    <h3>Meeting Details</h3>
+                    <p><strong>Day:</strong> Wednesday</p>
+                    <p><strong>Time:</strong> 7:00 PM</p>
+                    <p><strong>Location:</strong> Kingdom Hall</p>
+                    <p><strong>Conductor:</strong> Brother John</p>
+                </div>
+
+                <!-- Bible Reading Card -->
+                <div class="card">
+                    <h3>Bible Reading</h3>
+                    <p>Jeremiah 31:31-34</p>
+                    <p>"The days are coming," declares the LORD, "when I will make a new covenant with the house of Israel and the house of Judah."</p>
+                </div>
+
+                <!-- Assignments Card -->
+                <div class="card">
+                    <h3>Assignments</h3>
+                    <p><strong>Treasures:</strong> 5 parts</p>
+                    <p><strong>Ministry:</strong> 3 parts</p>
+                    <p><strong>Christian:</strong> 4 parts</p>
+                </div>
+            </div>
+
+            <!-- Meeting Parts -->
+            <div class="grid">
+                <!-- Treasures -->
+                <div class="card">
+                    <h3 class="text-lg">KAYAMANAN MULA SA SALITA NG DIYOS</h3>
+                    <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${[
+                        { id: 1, title: 'Pamagat 1' },
+                        { id: 2, title: 'Pamagat 2' },
+                        { id: 3, title: 'Pamagat 3' }
+                    ].map(item => `<div class="p-3 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''} hover:bg-slate-100/80 dark:hover:bg-slate-700/30 transition">${item.id}. ${item.title}</div>`).join('')}</div>
+                </div>
+
+                <!-- Ministry -->
+                <div class="card">
+                    <h3 class="text-lg">MAGING MAHUSAY SA MINISTERYO</h3>
+                    <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${[
+                        { id: 1, title: 'Ministry 1' },
+                        { id: 2, title: 'Ministry 2' }
+                    ].map(item => `<div class="p-2 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''}">${item.id}. ${item.title}</div>`).join('')}</div>
+                </div>
+
+                <!-- Christian -->
+                <div class="card">
+                    <h3 class="text-lg">PAMUMUHAY BILANG KRISTIANO</h3>
+                    <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${[
+                        { id: 1, title: 'Christian 1' },
+                        { id: 2, title: 'Christian 2' }
+                    ].map(item => `<div class="p-2 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''}">${item.id}. ${item.title}</div>`).join('')}</div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <div>
+                    <p>Pangwakas na Komento (3 min.)</p>
+                    <p><strong>Panalangin: </strong>Closing Prayer</p>
+                </div>
+                <div>
+                    <p><strong>Panalangin:</strong> Closing Prayer</p>
+                    <p><strong>Pambungad na Awit:</strong> Closing Song</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-primary text-white text-center py-8">
+        <p>Bacungan Congregation Midweek Meeting</p>
+    </footer>
+
+    <script>
+        // Fade-in animation on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            });
+            elements.forEach(el => observer.observe(el));
+        });
+
+        // Mobile menu toggle
+        function toggleMenu() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            mobileMenu.style.display = mobileMenu.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
 </body>
 </html>
