@@ -21,13 +21,6 @@
             --border-dark: #2a2a2a;
         }
 
-        body {
-            font-family: 'Lato', sans-serif;
-            background-color: var(--primary);
-            color: var(--text);
-            line-height: 1.6667;
-        }
-
         .dark {
             --primary: #1e6c93;
             --primary-dark: #1a5a7a;
@@ -37,6 +30,13 @@
             --text: #f5f5f5;
             --text-secondary: #b0b0b0;
             --border: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6667;
         }
 
         .container {
@@ -107,7 +107,7 @@
         }
 
         .hero {
-            background: url('https://images.unsplash.com/photo-150745232220-53522d6a1f03?auto=format&fit=crop&w=1200&q=80') no-repeat center center/cover;
+            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80') no-repeat center center/cover;
             height: 400px;
             display: flex;
             align-items: center;
@@ -124,12 +124,6 @@
 
         .hero p {
             font-size: 18pt;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
         }
 
         .card {
@@ -184,6 +178,7 @@
 </head>
 <body>
 
+<!-- Shared Navigation -->
 <div class="header">
     <div class="container">
         <div class="logo">Bacungan <span>Congregation</span></div>
@@ -247,18 +242,15 @@
                 <div class="card">
                     <h3 class="text-lg">KAYAMANAN MULA SA SALITA NG DIYOS</h3>
                     <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${[
-                        { id: 1, title: 'Pamagat 1' },
-                        { id: 2, title: 'Pamagat 2' },
-                        { id: 3, title: 'Pamagat 3' }
-                    ].map(item => `<div class="p-3 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''} hover:bg-slate-100/80 dark:hover:bg-slate-700/30 transition">${item.id}. ${item.title}</div>`).join('')}</div>
+                        { id: 1, title: 'Pamagat 1' }
+                    ].map(item => `<div class="p-3 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''}">${item.id}. ${item.title}</div>`).join('')}</div>
                 </div>
 
                 <!-- Ministry -->
                 <div class="card">
                     <h3 class="text-lg">MAGING MAHUSAY SA MINISTERYO</h3>
                     <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${[
-                        { id: 1, title: 'Ministry 1' },
-                        { id: 2, title: 'Ministry 2' }
+                        { id: 1, title: 'Ministry 1' }
                     ].map(item => `<div class="p-2 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''}">${item.id}. ${item.title}</div>`).join('')}</div>
                 </div>
 
@@ -266,8 +258,7 @@
                 <div class="card">
                     <h3 class="text-lg">PAMUMUHAY BILANG KRISTIANO</h3>
                     <div class="divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-800/40 text-xs">${[
-                        { id: 1, title: 'Christian 1' },
-                        { id: 2, title: 'Christian 2' }
+                        { id: 1, title: 'Christian 1' }
                     ].map(item => `<div class="p-2 ${item.id === 1 ? 'bg-amber-100/70 dark:bg-amber-900/30' : ''}">${item.id}. ${item.title}</div>`).join('')}</div>
                 </div>
             </div>
@@ -275,7 +266,7 @@
             <div class="flex justify-between">
                 <div>
                     <p>Pangwakas na Komento (3 min.)</p>
-                    <p><strong>Panalangin: </strong>Closing Prayer</p>
+                    <p><strong>Panalangin:</strong> Closing Prayer</p>
                 </div>
                 <div>
                     <p><strong>Panalangin:</strong> Closing Prayer</p>
@@ -283,29 +274,14 @@
                 </div>
             </div>
         </div>
-    </main>
 
-    <footer class="bg-primary text-white text-center py-8">
-        <p>Bacungan Congregation Midweek Meeting</p>
-    </footer>
+        <footer class="bg-primary text-white text-center py-8">
+            <p>Bacungan Congregation Midweek Meeting</footer>
+        </footer>
 
     <script>
-        // Fade-in animation on load
-        document.addEventListener('DOMContentLoaded', () => {
-            const elements = document.querySelectorAll('.fade-in');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            });
-            elements.forEach(el => observer.observe(el));
-        });
-
-        // Mobile menu toggle
         function toggleMenu() {
-            const mobileMenu = document.querySelector('.mobile-menu');
+            const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.style.display = mobileMenu.style.display === 'block' ? 'none' : 'block';
         }
     </script>
